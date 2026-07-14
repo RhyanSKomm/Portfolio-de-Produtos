@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Publicação e atualização
 
-## Getting Started
+O painel é publicado gratuitamente pelo GitHub Pages. Os textos, números, projetos e links exibidos na tela ficam em `data/humani.json`.
 
-First, run the development server:
+## Atualizar pelo site do GitHub
+
+1. Abra o repositório no GitHub.
+2. Entre na pasta `data` e abra `humani.json`.
+3. Clique no lápis, chamado **Edit this file**.
+4. Altere somente os valores depois dos dois-pontos, preservando aspas, vírgulas e chaves.
+5. Clique em **Commit changes**.
+6. Aguarde a execução **Publicar no GitHub Pages** terminar na aba **Actions**.
+
+Cada commit na branch `main` recompila e publica a página automaticamente. O histórico do GitHub permite consultar ou restaurar versões anteriores.
+
+## Atualizar pelo computador
+
+Edite `data/humani.json` e confira o resultado com:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Depois publique:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+git add data/humani.json
+git commit -m "Atualiza dados do Humani"
+git push
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Primeira publicação
 
-## Learn More
+1. No GitHub, abra **Settings**.
+2. Acesse **Pages**.
+3. Em **Build and deployment**, selecione **GitHub Actions** como fonte.
+4. Faça um push para `main` ou execute o fluxo manualmente pela aba **Actions**.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O endereço do site aparecerá em **Settings > Pages** depois da primeira publicação.

@@ -1,0 +1,38 @@
+{
+  "id": "humani",
+  "name": "Humani",
+  "client": "SEFAZ-MS",
+  "stage": "Contexto atual",
+  "sources": {
+    "product": { "label": "", "url": "" },
+    "backlog": { "label": "", "url": "" },
+    "delivery": { "label": "", "url": "" },
+    "billing": { "label": "", "url": "" }
+  },
+  "product": {
+    "objective": "Acompanhar o pulso do cliente SEFAZ-MS, garantindo que a sustentação do sistema atual mantenha a operação saudável e fortaleça a confiança do cliente até a transição para o novo modelo de contratação, sustentado pela reescrita do Humani.",
+    "projects": ["USTs", "Reescrita do Humani"],
+    "horizon": "Até Q3 e Q4 2026",
+    "contractMoment": "Transição para novo modelo de contratação sustentado pela reescrita do Humani."
+  },
+  "backlogProjects": ["Reescrita do Humani"],
+  "delivery": {
+    "development": [
+      { "label": "US", "value": 4 },
+      { "label": "Bug", "value": 1 },
+      { "label": "Débito Técnico", "value": 1 }
+    ],
+    "design": [{ "label": "US", "value": 2 }]
+  },
+  "billing": {
+    "monthlyTarget": 1638,
+    "previousReport": 1734,
+    "desktopDevProduced": 1091,
+    "bugs": 111,
+    "producedWithoutTickets": 2825,
+    "tickets": 173,
+    "currentReportBillable": 1465,
+    "remainingOrMissing": 1360,
+    "totalToBill": 2825
+  }
+}
