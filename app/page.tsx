@@ -37,16 +37,18 @@ type SourceLink = {
   url: string;
 };
 
+type SourceLinks = SourceLink[];
+
 type ProductWorkspace = {
   id: string;
   name: string;
   client: string;
   stage: string;
   sources: {
-    product: SourceLink;
-    backlog: SourceLink;
-    delivery: SourceLink;
-    billing: SourceLink;
+    product: SourceLinks;
+    backlog: SourceLinks;
+    delivery: SourceLinks;
+    billing: SourceLinks;
   };
   product: ProductData;
   backlogProjects: string[];
@@ -59,22 +61,26 @@ const emptySource: SourceLink = {
   url: "",
 };
 
-function normalizeSource(source: SourceLink | string | undefined): SourceLink {
+function normalizeSources(
+  source: SourceLinks | SourceLink | string | undefined,
+): SourceLinks {
   if (!source) {
-    return { ...emptySource };
+    return [];
   }
 
   if (typeof source === "string") {
-    return {
+    return [{
       label: "",
       url: source,
-    };
+    }];
   }
 
-  return {
-    label: source.label ?? "",
-    url: source.url ?? "",
-  };
+  const sources = Array.isArray(source) ? source : [source];
+
+  return sources.map((item) => ({
+    label: item.label ?? "",
+    url: item.url ?? "",
+  }));
 }
 
 const initialProducts: ProductWorkspace[] = [humani];
@@ -409,11 +415,11 @@ function ProductCard({
   data: ProductData;
   draft: ProductData;
   isEditing: boolean;
-  source: SourceLink;
+  source: SourceLinks;
   onEdit: () => void;
   onCancel: () => void;
   onChange: (value: ProductData) => void;
-  onSourceChange: (source: SourceLink) => void;
+  onSourceChange: (source: SourceLinks) => void;
   onSave: () => void;
 }) {
   const visibleData = isEditing ? draft : data;
@@ -494,8 +500,8 @@ function BacklogCard({
 }: {
   canEdit: boolean;
   projects: string[];
-  source: SourceLink;
-  onSourceChange: (source: SourceLink) => void;
+  source: SourceLinks;
+  onSourceChange: (source: SourceLinks) => void;
   onChangeProjects: (projects: string[]) => void;
 }) {
   const [isAddingProject, setIsAddingProject] = useState(false);
@@ -747,11 +753,11 @@ function BillingCard({
   data: BillingData;
   draft: BillingData;
   isEditing: boolean;
-  source: SourceLink;
+  source: SourceLinks;
   onEdit: () => void;
   onCancel: () => void;
   onChange: (value: BillingData) => void;
-  onSourceChange: (source: SourceLink) => void;
+  onSourceChange: (source: SourceLinks) => void;
   onSave: () => void;
 }) {
   const visibleData = isEditing ? draft : data;
@@ -872,11 +878,11 @@ function DeliveryCard({
   data: DeliveryData;
   draft: DeliveryData;
   isEditing: boolean;
-  source: SourceLink;
+  source: SourceLinks;
   onEdit: () => void;
   onCancel: () => void;
   onChange: (value: DeliveryData) => void;
-  onSourceChange: (source: SourceLink) => void;
+  onSourceChange: (source: SourceLinks) => void;
   onSave: () => void;
 }) {
   const visibleData = isEditing ? draft : data;
@@ -933,36 +939,62 @@ function CardTop({
 }: {
   title: string;
   isEditing?: boolean;
-  source: SourceLink;
+  source: SourceLinks;
   onEdit?: () => void;
   onSave?: () => void;
   onCancel?: () => void;
 }) {
-  const safeSource = normalizeSource(source);
-  const hasSource = Boolean(safeSource.url.trim());
-  const sourceLabel = safeSource.label.trim() || safeSource.url.trim() || "Sem fonte cadastrada";
+  const safeSources = normalizeSources(source).filter((item) => item.url.trim());
+  const hasSources = safeSources.length > 0;
+  const sourceSummary = hasSources
+    ? `${safeSources.length} ${safeSources.length === 1 ? "fonte cadastrada" : "fontes cadastradas"}`
+    : "Sem fonte cadastrada";
 
   return (
     <div>
       <div className="flex items-start justify-between gap-4">
         <p className={sectionLabelClass}>{title}</p>
         <div className="flex gap-2">
-          {hasSource ? (
-            <a
-              aria-label={`Abrir fonte: ${sourceLabel}`}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-[#eef0ff] text-[#5548e8] transition hover:bg-[#e1e5ff]"
-              href={safeSource.url}
-              rel="noreferrer"
-              target="_blank"
-              title={sourceLabel}
-            >
-              <Icon name="info" className="h-4 w-4" />
-            </a>
+          {hasSources ? (
+            <div className="group/source relative">
+              <button
+                aria-label={`Consultar fontes de ${title.toLowerCase()}`}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-[#eef0ff] text-[#5548e8] transition hover:bg-[#e1e5ff]"
+                title={sourceSummary}
+                type="button"
+              >
+                <Icon name="info" className="h-4 w-4" />
+              </button>
+
+              <div className="invisible absolute right-0 top-8 z-30 w-64 translate-y-1 rounded-lg border border-slate-200 bg-white p-2 opacity-0 shadow-xl transition group-hover/source:visible group-hover/source:translate-y-0 group-hover/source:opacity-100 group-focus-within/source:visible group-focus-within/source:translate-y-0 group-focus-within/source:opacity-100">
+                <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#7180a0]">
+                  Fontes de consulta
+                </p>
+                <div className="grid gap-1">
+                  {safeSources.map((item, index) => {
+                    const label = item.label.trim() || `Fonte ${index + 1}`;
+
+                    return (
+                      <a
+                        className="rounded-md px-3 py-2 text-sm font-medium text-[#000b2f] transition hover:bg-[#eef0ff] hover:text-[#5548e8] focus:bg-[#eef0ff] focus:text-[#5548e8] focus:outline-none"
+                        href={item.url}
+                        key={`${item.url}-${index}`}
+                        rel="noreferrer"
+                        target="_blank"
+                        title={`Abrir ${label}`}
+                      >
+                        {label}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           ) : (
             <span
               aria-label="Sem fonte cadastrada"
               className="flex h-8 w-8 items-center justify-center rounded-full text-[#7180a0]"
-              title={sourceLabel}
+              title={sourceSummary}
             >
               <Icon name="info" className="h-4 w-4" />
             </span>
@@ -1007,40 +1039,64 @@ function SourceEditor({
   source,
   onSourceChange,
 }: {
-  source: SourceLink;
-  onSourceChange: (source: SourceLink) => void;
+  source: SourceLinks;
+  onSourceChange: (source: SourceLinks) => void;
 }) {
-  const safeSource = normalizeSource(source);
+  const safeSources = normalizeSources(source);
+
+  function updateSource(index: number, value: Partial<SourceLink>) {
+    onSourceChange(
+      safeSources.map((item, currentIndex) =>
+        currentIndex === index ? { ...item, ...value } : item,
+      ),
+    );
+  }
 
   return (
     <div className="mt-4 rounded-2xl border border-slate-200 bg-[#f7f8fb] p-3">
       <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-[#7180a0]">
-        Fonte da informação
+        Fontes da informação
       </label>
-      <div className="grid gap-2 md:grid-cols-[220px_minmax(0,1fr)_auto]">
-        <input
-          className="min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#000b2f] outline-none transition placeholder:text-[#7180a0] focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
-          placeholder="Nome exibido no hover"
-          value={safeSource.label}
-          onChange={(event) =>
-            onSourceChange({ ...safeSource, label: event.target.value })
-          }
-        />
-        <input
-          className="min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#000b2f] outline-none transition placeholder:text-[#7180a0] focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
-          placeholder="https://..."
-          type="url"
-          value={safeSource.url}
-          onChange={(event) =>
-            onSourceChange({ ...safeSource, url: event.target.value })
-          }
-        />
+      <div className="grid gap-2">
+        {safeSources.map((item, index) => (
+          <div
+            className="grid gap-2 md:grid-cols-[200px_minmax(0,1fr)_auto]"
+            key={`source-editor-${index}`}
+          >
+            <input
+              className="min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#000b2f] outline-none transition placeholder:text-[#7180a0] focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+              placeholder="Nome da fonte"
+              value={item.label}
+              onChange={(event) => updateSource(index, { label: event.target.value })}
+            />
+            <input
+              className="min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#000b2f] outline-none transition placeholder:text-[#7180a0] focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+              placeholder="https://..."
+              type="url"
+              value={item.url}
+              onChange={(event) => updateSource(index, { url: event.target.value })}
+            />
+            <button
+              aria-label={`Excluir fonte ${index + 1}`}
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#7180a0] ring-1 ring-slate-200 transition hover:text-red-500"
+              onClick={() =>
+                onSourceChange(safeSources.filter((_, currentIndex) => currentIndex !== index))
+              }
+              title="Excluir fonte"
+              type="button"
+            >
+              <Icon name="trash" className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
+
         <button
-          className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-[#7180a0] ring-1 ring-slate-200 transition hover:text-red-500"
-          onClick={() => onSourceChange({ ...emptySource })}
+          className="mt-1 inline-flex w-fit items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-[#5548e8] ring-1 ring-slate-200 transition hover:bg-[#eef0ff]"
+          onClick={() => onSourceChange([...safeSources, { ...emptySource }])}
           type="button"
         >
-          Limpar
+          <Icon name="plus" className="h-4 w-4" />
+          Adicionar fonte
         </button>
       </div>
     </div>

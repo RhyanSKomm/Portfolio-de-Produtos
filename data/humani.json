@@ -4,10 +4,42 @@
   "client": "SEFAZ-MS",
   "stage": "Contexto atual",
   "sources": {
-    "product": { "label": "", "url": "" },
-    "backlog": { "label": "", "url": "" },
-    "delivery": { "label": "", "url": "" },
-    "billing": { "label": "", "url": "" }
+    "product": [
+      {
+        "label": "Weekly",
+        "url": "https://somosdigix-my.sharepoint.com/:p:/g/personal/rhyankomm_digix_com_br/IQAr3fSYoMxkRZuHrlE-lSDFAZuD6Hkkytb-juy71JLPI6U?e=geLSoy"
+      },
+      {
+        "label": "Planejamento",
+        "url": "https://somosdigix-my.sharepoint.com/:p:/g/personal/rhyankomm_digix_com_br/IQAr3fSYoMxkRZuHrlE-lSDFAZuD6Hkkytb-juy71JLPI6U?e=geLSoy"
+      }
+    ],
+    "backlog": [
+      {
+        "label": "Downstream",
+        "url": "https://somosdigix-my.sharepoint.com/:x:/g/personal/rhyankomm_digix_com_br/IQBWtVlp8SrXRqnhhuMQNNgcAWvne5eDT4DzJvZy2lCMqlo?e=PD3vI8"
+      },
+      {
+        "label": "Upstream",
+        "url": "https://somosdigix.sharepoint.com/:x:/s/EquipedeProduto/IQCVoG4ZxvNSQrF0yC58OWS0ATmwIijSMnPPKpPFUeGGneA?email=greghorymetzker%40digix.com.br&e=I54rDZ"
+      }
+    ],
+    "delivery": [
+      {
+        "label": "Médias",
+        "url": "https://somosdigix-my.sharepoint.com/:x:/g/personal/rhyankomm_digix_com_br/IQBWtVlp8SrXRqnhhuMQNNgcAWvne5eDT4DzJvZy2lCMqlo?e=PD3vI8"
+      }
+    ],
+    "billing": [
+      {
+        "label": "Faturamento Mensal",
+        "url": "https://somosdigix.sharepoint.com/:x:/s/rc/IQCNCG3dvw4aRaYGPvc6N4UHAXucKNwZJPQwaDYICiPTyMU?email=greghorymetzker%40digix.com.br&e=L5jbqf"
+      },
+      {
+        "label": "Faturamento Anual",
+        "url": "https://somosdigix.sharepoint.com/:x:/s/rc/IQBmAqabENJ2SpqSaxlOLr9zAaEeaDH_tW8H1Gi79T-ooJM?email=greghorymetzker%40digix.com.br&e=OLSBGf"
+      }
+    ]
   },
   "product": {
     "objective": "Acompanhar o pulso do cliente SEFAZ-MS, garantindo que a sustentação do sistema atual mantenha a operação saudável e fortaleça a confiança do cliente até a transição para o novo modelo de contratação, sustentado pela reescrita do Humani.",
