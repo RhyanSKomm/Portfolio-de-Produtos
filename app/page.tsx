@@ -448,38 +448,14 @@ function ProductCard({
         )}
       </div>
 
-      <div className="mt-8 grid gap-8 md:grid-cols-3">
-        <div>
-          <p className="mb-3 text-sm font-medium text-[#7180a0]">Projetos Ativos</p>
-          {isEditing ? (
-            <input
-              className={fieldClass}
-              value={draft.projects.join(", ")}
-              onChange={(event) =>
-                onChange({ ...draft, projects: event.target.value.split(",") })
-              }
-            />
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {visibleData.projects.map((project) => (
-                <span
-                  className="rounded-full bg-[#eef0ff] px-3 py-1 text-sm font-medium text-[#1c18a5]"
-                  key={project}
-                >
-                  {project}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
+      <div className="mt-8 grid gap-6 md:grid-cols-2">
         <div>
           <p className="mb-2 text-sm font-medium text-[#7180a0]">
             Planejamento Horizonte
           </p>
           {isEditing ? (
-            <input
-              className={fieldClass}
+            <textarea
+              className={`${fieldClass} min-h-20 resize-y leading-6`}
               value={draft.horizon}
               onChange={(event) => onChange({ ...draft, horizon: event.target.value })}
             />
