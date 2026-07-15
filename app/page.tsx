@@ -1209,13 +1209,15 @@ function MetricTable({
                   value={metric.value}
                   onChange={(event) => onUpdate(index, event.target.value)}
                 />
-                <span className="text-sm font-medium text-[#7180a0]">dias/item</span>
+                <span className="text-sm font-medium text-[#7180a0]">
+                  {metric.value === 1 ? "item" : "itens"}
+                </span>
               </div>
             ) : (
               <p className="text-right font-mono text-base font-semibold text-[#000b2f]">
                 {metric.value}{" "}
                 <span className="font-sans text-sm font-medium text-[#7180a0]">
-                  dias/item
+                  {metric.value === 1 ? "item" : "itens"}
                 </span>
               </p>
             )}
