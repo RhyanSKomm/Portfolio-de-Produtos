@@ -59,7 +59,6 @@ type ProductWorkspace = {
     backlog: SourceLinks;
     delivery: SourceLinks;
     billing: SourceLinks;
-    team: SourceLinks;
   };
   product: ProductData;
   backlogProjects: string[];
@@ -289,13 +288,6 @@ export default function Home() {
               data={selectedProduct.team}
               draft={teamDraft}
               isEditing={isTeamEditing}
-              source={selectedProduct.sources.team}
-              onSourceChange={(source) =>
-                updateSelectedProduct((product) => ({
-                  ...product,
-                  sources: { ...product.sources, team: source },
-                }))
-              }
               onEdit={() => {
                 setTeamDraft(selectedProduct.team);
                 setIsTeamEditing(true);
@@ -1294,28 +1286,23 @@ function TeamCard({
   data,
   draft,
   isEditing,
-  source,
   onCancel,
   onChange,
   onEdit,
   onSave,
-  onSourceChange,
 }: {
   canEdit: boolean;
   data: TeamData;
   draft: TeamData;
   isEditing: boolean;
-  source: SourceLinks;
   onCancel: () => void;
   onChange: (value: TeamData) => void;
   onEdit: () => void;
   onSave: () => void;
-  onSourceChange: (source: SourceLinks) => void;
 }) {
   const visibleData = isEditing ? draft : data;
   const technologyTotal = visibleData.technology.length;
   const productTotal = visibleData.product.length;
-  const total = technologyTotal + productTotal;
 
   function updateMember(
     group: keyof TeamData,
@@ -1346,21 +1333,46 @@ function TeamCard({
   }
 
   return (
-    <section className="rounded-[18px] border border-slate-200 bg-white px-7 py-7 xl:col-span-2">
-      <CardTop
-        title={`Composição do Time · ${total} ${total === 1 ? "pessoa" : "pessoas"}`}
-        isEditing={isEditing}
-        source={source}
-        onCancel={onCancel}
-        onEdit={canEdit ? onEdit : undefined}
-        onSave={onSave}
-      />
-
-      {isEditing ? (
-        <SourceEditor source={source} onSourceChange={onSourceChange} />
+    <section className="relative rounded-[18px] border border-slate-200 bg-white px-6 py-4 xl:col-span-2">
+      {canEdit ? (
+        <div className="absolute right-4 top-3 z-10 flex gap-2">
+          {isEditing ? (
+            <>
+              <button
+                aria-label="Salvar alterações do time"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-[#5548e8] text-white transition hover:bg-[#4338ca]"
+                onClick={onSave}
+                type="button"
+              >
+                <Icon name="check" className="h-4 w-4" />
+              </button>
+              <button
+                aria-label="Cancelar edição do time"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-[#7180a0] transition hover:text-[#000b2f]"
+                onClick={onCancel}
+                type="button"
+              >
+                <Icon name="x" className="h-4 w-4" />
+              </button>
+            </>
+          ) : (
+            <button
+              aria-label="Editar composição do time"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#7180a0] transition hover:bg-[#f0f2f6] hover:text-[#5548e8]"
+              onClick={onEdit}
+              type="button"
+            >
+              <Icon name="pencil" className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       ) : null}
 
-      <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
+      <div
+        className={`grid gap-5 xl:grid-cols-[minmax(0,5fr)_minmax(0,3fr)] ${
+          isEditing ? "pr-20" : canEdit ? "pr-10" : ""
+        }`}
+      >
         <TeamSection
           group="technology"
           isEditing={isEditing}
@@ -1421,8 +1433,8 @@ function TeamSection({
   total: number;
 }) {
   return (
-    <div className={group === "product" ? "border-t border-slate-200 pt-5 xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0" : ""}>
-      <div className="flex min-h-8 items-center justify-between gap-4">
+    <div className={group === "product" ? "border-t border-slate-200 pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0" : ""}>
+      <div className="flex min-h-6 items-center justify-between gap-4">
         <p className={sectionLabelClass}>{label}</p>
         <p className="shrink-0 font-mono text-base font-semibold text-[#000b2f]">
           {total}{" "}
@@ -1433,10 +1445,10 @@ function TeamSection({
       </div>
 
       <div
-        className={`mt-3 grid gap-x-5 gap-y-1 ${
+        className={`mt-2 grid gap-x-4 gap-y-0 ${
           group === "technology"
-            ? "md:grid-cols-2 2xl:grid-cols-3"
-            : "md:grid-cols-2"
+            ? "md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5"
+            : "md:grid-cols-2 2xl:grid-cols-3"
         }`}
       >
         {members.map((member, index) =>
@@ -1469,7 +1481,7 @@ function TeamSection({
               />
             </div>
           ) : (
-            <div className="grid min-h-14 grid-cols-[34px_minmax(0,1fr)] items-start gap-3 border-t border-slate-200 py-3" key={`${member.name}-${member.role}`}>
+            <div className="grid min-h-12 grid-cols-[32px_minmax(0,1fr)] items-start gap-2 border-t border-slate-200 py-2" key={`${member.name}-${member.role}`}>
               <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#eef0ff] text-xs font-semibold text-[#5548e8]">
                 {getInitials(member.name)}
               </span>
