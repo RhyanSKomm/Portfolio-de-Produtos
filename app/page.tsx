@@ -15,15 +15,14 @@ type DeliveryMetric = {
   value: number;
 };
 
-type TeamMemberGroup = {
+type TeamMember = {
+  name: string;
   role: string;
-  seniority: string;
-  count: number;
 };
 
 type TeamData = {
-  technology: TeamMemberGroup[];
-  product: TeamMemberGroup[];
+  technology: TeamMember[];
+  product: TeamMember[];
 };
 
 type DeliveryData = {
@@ -908,10 +907,14 @@ function DeliveryCard({
     onChange({ ...draft, [group]: nextMetrics });
   }
 
-  function updateTeamCount(group: keyof TeamData, index: number, value: string) {
-    const integerValue = Math.max(0, Math.trunc(Number(value) || 0));
-    const nextGroup = draft.team[group].map((memberGroup, currentIndex) =>
-      currentIndex === index ? { ...memberGroup, count: integerValue } : memberGroup,
+  function updateTeamMember(
+    group: keyof TeamData,
+    index: number,
+    field: keyof TeamMember,
+    value: string,
+  ) {
+    const nextGroup = draft.team[group].map((member, currentIndex) =>
+      currentIndex === index ? { ...member, [field]: value } : member,
     );
 
     onChange({
@@ -956,7 +959,7 @@ function DeliveryCard({
       <TeamComposition
         data={visibleData.team}
         isEditing={isEditing}
-        onUpdate={updateTeamCount}
+        onUpdate={updateTeamMember}
       />
     </section>
   );
@@ -1268,16 +1271,15 @@ function TeamComposition({
 }: {
   data: TeamData;
   isEditing: boolean;
-  onUpdate: (group: keyof TeamData, index: number, value: string) => void;
+  onUpdate: (
+    group: keyof TeamData,
+    index: number,
+    field: keyof TeamMember,
+    value: string,
+  ) => void;
 }) {
-  const technologyTotal = data.technology.reduce(
-    (total, memberGroup) => total + memberGroup.count,
-    0,
-  );
-  const productTotal = data.product.reduce(
-    (total, memberGroup) => total + memberGroup.count,
-    0,
-  );
+  const technologyTotal = data.technology.length;
+  const productTotal = data.product.length;
   const total = technologyTotal + productTotal;
 
   return (
@@ -1295,16 +1297,18 @@ function TeamComposition({
           align="left"
           isEditing={isEditing}
           label="Tecnologia"
-          memberGroups={data.technology}
-          onUpdate={(index, value) => onUpdate("technology", index, value)}
+          members={data.technology}
+          onUpdate={(index, field, value) =>
+            onUpdate("technology", index, field, value)
+          }
           total={technologyTotal}
         />
         <TeamCategory
           align="right"
           isEditing={isEditing}
           label="Produto"
-          memberGroups={data.product}
-          onUpdate={(index, value) => onUpdate("product", index, value)}
+          members={data.product}
+          onUpdate={(index, field, value) => onUpdate("product", index, field, value)}
           total={productTotal}
         />
       </div>
@@ -1312,28 +1316,34 @@ function TeamComposition({
   );
 }
 
+function getInitials(name: string) {
+  const nameParts = name.trim().split(/\s+/).filter(Boolean);
+  const firstInitial = nameParts.at(0)?.charAt(0) ?? "";
+  const lastInitial =
+    nameParts.length > 1
+      ? (nameParts.at(-1)?.charAt(0) ?? "")
+      : (nameParts.at(0)?.charAt(1) ?? "");
+
+  return `${firstInitial}${lastInitial}`.toUpperCase();
+}
+
 function TeamCategory({
   align,
   isEditing,
   label,
-  memberGroups,
+  members,
   onUpdate,
   total,
 }: {
   align: "left" | "right";
   isEditing: boolean;
   label: string;
-  memberGroups: TeamMemberGroup[];
-  onUpdate: (index: number, value: string) => void;
+  members: TeamMember[];
+  onUpdate: (index: number, field: keyof TeamMember, value: string) => void;
   total: number;
 }) {
-  const summary = memberGroups
-    .map(
-      (memberGroup) =>
-        `${memberGroup.count} ${memberGroup.role}${
-          memberGroup.seniority ? `, ${memberGroup.seniority}` : ""
-        }`,
-    )
+  const summary = members
+    .map((member) => `${member.name}, ${member.role}`)
     .join("; ");
 
   return (
@@ -1359,34 +1369,29 @@ function TeamCategory({
 
       {isEditing ? (
         <div className="mt-4 grid gap-3 border-t border-slate-200 pt-3">
-          {memberGroups.map((memberGroup, index) => (
+          {members.map((member, index) => (
             <div
-              className="grid grid-cols-[minmax(0,1fr)_64px] items-center gap-3"
-              key={`${memberGroup.role}-${memberGroup.seniority}`}
+              className="grid gap-2"
+              key={`${member.name}-${member.role}-${index}`}
             >
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-[#000b2f]">{memberGroup.role}</p>
-                {memberGroup.seniority ? (
-                  <p className="mt-0.5 text-xs text-[#7180a0]">{memberGroup.seniority}</p>
-                ) : null}
-              </div>
               <input
-                aria-label={`Quantidade de ${memberGroup.role} ${
-                  memberGroup.seniority
-                }`.trim()}
-                className="h-9 w-16 rounded-lg border border-slate-200 bg-white text-center text-sm font-semibold text-[#000b2f] outline-none focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
-                min="0"
-                step="1"
-                type="number"
-                value={memberGroup.count}
-                onChange={(event) => onUpdate(index, event.target.value)}
+                aria-label={`Nome da pessoa ${index + 1} de ${label}`}
+                className="h-9 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-[#000b2f] outline-none focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+                value={member.name}
+                onChange={(event) => onUpdate(index, "name", event.target.value)}
+              />
+              <input
+                aria-label={`Cargo de ${member.name}`}
+                className="h-9 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-xs text-[#7180a0] outline-none focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+                value={member.role}
+                onChange={(event) => onUpdate(index, "role", event.target.value)}
               />
             </div>
           ))}
         </div>
       ) : (
         <div
-          className={`pointer-events-none invisible absolute bottom-[calc(100%-4px)] z-30 w-72 max-w-[calc(100vw-4rem)] translate-y-1 rounded-lg border border-slate-200 bg-white p-3 opacity-0 shadow-xl transition group-hover/team:visible group-hover/team:translate-y-0 group-hover/team:opacity-100 group-focus/team:visible group-focus/team:translate-y-0 group-focus/team:opacity-100 ${
+          className={`pointer-events-none invisible absolute bottom-[calc(100%-4px)] z-30 w-80 max-w-[calc(100vw-4rem)] translate-y-1 rounded-lg border border-slate-200 bg-white p-3 opacity-0 shadow-xl transition group-hover/team:visible group-hover/team:translate-y-0 group-hover/team:opacity-100 group-focus/team:visible group-focus/team:translate-y-0 group-focus/team:opacity-100 ${
             align === "left" ? "left-0" : "right-0"
           }`}
           role="tooltip"
@@ -1394,24 +1399,20 @@ function TeamCategory({
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#7180a0]">
             Time de {label}
           </p>
-          <div className="grid gap-2">
-            {memberGroups.map((memberGroup) => (
+          <div className="grid gap-3">
+            {members.map((member) => (
               <div
-                className="grid grid-cols-[28px_minmax(0,1fr)] items-start gap-2"
-                key={`${memberGroup.role}-${memberGroup.seniority}`}
+                className="grid grid-cols-[32px_minmax(0,1fr)] items-start gap-3"
+                key={`${member.name}-${member.role}`}
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#eef0ff] font-mono text-sm font-semibold text-[#5548e8]">
-                  {memberGroup.count}
+                <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#eef0ff] text-xs font-semibold text-[#5548e8]">
+                  {getInitials(member.name)}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium leading-5 text-[#000b2f]">
-                    {memberGroup.role}
+                  <p className="text-xs font-semibold leading-5 text-[#000b2f]">
+                    {member.name}
                   </p>
-                  {memberGroup.seniority ? (
-                    <p className="text-xs leading-5 text-[#7180a0]">
-                      {memberGroup.seniority}
-                    </p>
-                  ) : null}
+                  <p className="text-xs leading-5 text-[#7180a0]">{member.role}</p>
                 </div>
               </div>
             ))}

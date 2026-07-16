@@ -57,25 +57,39 @@
     "design": [{ "label": "US", "value": 2 }],
     "team": {
       "technology": [
-        { "role": "Desenvolvedor", "seniority": "Sênior", "count": 2 },
-        { "role": "Desenvolvedor", "seniority": "Pleno", "count": 1 },
         {
-          "role": "Analista de Cuidado ao Cliente",
-          "seniority": "",
-          "count": 2
+          "name": "FABIO FERNANDES BARBOSA",
+          "role": "Desenvolvedor Full Stack Sênior"
+        },
+        {
+          "name": "RICARDO GALEANO DE FARIAS",
+          "role": "Desenvolvedor Full Stack Sênior"
+        },
+        {
+          "name": "VITOR DE ARAUJO ROMÃO GUILHERMO",
+          "role": "Desenvolvedor Full Stack Pleno"
+        },
+        {
+          "name": "JEFFERSON FERNANDO DA SILVA SOUSA",
+          "role": "Analista de Cuidado ao Cliente Pleno"
+        },
+        {
+          "name": "JOAO VITOR SOUZA CARDOSO",
+          "role": "Analista de Cuidado ao Cliente Júnior"
         }
       ],
       "product": [
         {
-          "role": "Analista de Negócios",
-          "seniority": "Pleno",
-          "count": 1
+          "name": "RHYAN SANTIAGO KOMM",
+          "role": "Auxiliar de Produto"
         },
-        { "role": "Auxiliar de Produto", "seniority": "", "count": 1 },
         {
-          "role": "Designer de Produto",
-          "seniority": "Sênior / Coordenador de Design",
-          "count": 1
+          "name": "LAYDE MARA FERNANDES",
+          "role": "Analista de Negócios Pleno"
+        },
+        {
+          "name": "FERNANDO ALVES DE ARAUJO",
+          "role": "Coordenador de Design de Produto"
         }
       ]
     }
