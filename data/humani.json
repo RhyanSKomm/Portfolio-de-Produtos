@@ -54,7 +54,31 @@
       { "label": "Bug", "value": 2 },
       { "label": "Demanda Tech", "value": 2 }
     ],
-    "design": [{ "label": "US", "value": 2 }]
+    "design": [{ "label": "US", "value": 2 }],
+    "team": {
+      "technology": [
+        { "role": "Desenvolvedor", "seniority": "Sênior", "count": 2 },
+        { "role": "Desenvolvedor", "seniority": "Pleno", "count": 1 },
+        {
+          "role": "Analista de Cuidado ao Cliente",
+          "seniority": "",
+          "count": 2
+        }
+      ],
+      "product": [
+        {
+          "role": "Analista de Negócios",
+          "seniority": "Pleno",
+          "count": 1
+        },
+        { "role": "Auxiliar de Produto", "seniority": "", "count": 1 },
+        {
+          "role": "Designer de Produto",
+          "seniority": "Sênior / Coordenador de Design",
+          "count": 1
+        }
+      ]
+    }
   },
   "billing": {
     "monthlyTarget": 1638,

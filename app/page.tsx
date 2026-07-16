@@ -15,9 +15,21 @@ type DeliveryMetric = {
   value: number;
 };
 
+type TeamMemberGroup = {
+  role: string;
+  seniority: string;
+  count: number;
+};
+
+type TeamData = {
+  technology: TeamMemberGroup[];
+  product: TeamMemberGroup[];
+};
+
 type DeliveryData = {
   development: DeliveryMetric[];
   design: DeliveryMetric[];
+  team: TeamData;
 };
 
 type BillingData = {
@@ -896,6 +908,21 @@ function DeliveryCard({
     onChange({ ...draft, [group]: nextMetrics });
   }
 
+  function updateTeamCount(group: keyof TeamData, index: number, value: string) {
+    const integerValue = Math.max(0, Math.trunc(Number(value) || 0));
+    const nextGroup = draft.team[group].map((memberGroup, currentIndex) =>
+      currentIndex === index ? { ...memberGroup, count: integerValue } : memberGroup,
+    );
+
+    onChange({
+      ...draft,
+      team: {
+        ...draft.team,
+        [group]: nextGroup,
+      },
+    });
+  }
+
   return (
     <section className="min-h-[340px] rounded-[18px] border border-slate-200 bg-white px-7 py-8">
       <CardTop
@@ -925,6 +952,12 @@ function DeliveryCard({
           title="Design"
         />
       </div>
+
+      <TeamComposition
+        data={visibleData.team}
+        isEditing={isEditing}
+        onUpdate={updateTeamCount}
+      />
     </section>
   );
 }
@@ -1224,6 +1257,167 @@ function MetricTable({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function TeamComposition({
+  data,
+  isEditing,
+  onUpdate,
+}: {
+  data: TeamData;
+  isEditing: boolean;
+  onUpdate: (group: keyof TeamData, index: number, value: string) => void;
+}) {
+  const technologyTotal = data.technology.reduce(
+    (total, memberGroup) => total + memberGroup.count,
+    0,
+  );
+  const productTotal = data.product.reduce(
+    (total, memberGroup) => total + memberGroup.count,
+    0,
+  );
+  const total = technologyTotal + productTotal;
+
+  return (
+    <div className="mt-7 border-t border-slate-200 pt-5">
+      <div className="flex items-center justify-between gap-4">
+        <p className={sectionLabelClass}>Composição do Time</p>
+        <p className="shrink-0 text-sm font-medium text-[#7180a0]">
+          <span className="font-mono text-base font-semibold text-[#000b2f]">{total}</span>{" "}
+          {total === 1 ? "pessoa" : "pessoas"}
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <TeamCategory
+          align="left"
+          isEditing={isEditing}
+          label="Tecnologia"
+          memberGroups={data.technology}
+          onUpdate={(index, value) => onUpdate("technology", index, value)}
+          total={technologyTotal}
+        />
+        <TeamCategory
+          align="right"
+          isEditing={isEditing}
+          label="Produto"
+          memberGroups={data.product}
+          onUpdate={(index, value) => onUpdate("product", index, value)}
+          total={productTotal}
+        />
+      </div>
+    </div>
+  );
+}
+
+function TeamCategory({
+  align,
+  isEditing,
+  label,
+  memberGroups,
+  onUpdate,
+  total,
+}: {
+  align: "left" | "right";
+  isEditing: boolean;
+  label: string;
+  memberGroups: TeamMemberGroup[];
+  onUpdate: (index: number, value: string) => void;
+  total: number;
+}) {
+  const summary = memberGroups
+    .map(
+      (memberGroup) =>
+        `${memberGroup.count} ${memberGroup.role}${
+          memberGroup.seniority ? `, ${memberGroup.seniority}` : ""
+        }`,
+    )
+    .join("; ");
+
+  return (
+    <div
+      aria-label={`${label}: ${summary}`}
+      className="group/team relative rounded-lg border border-slate-200 bg-[#f7f8fb] p-4 outline-none transition focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+      tabIndex={isEditing ? undefined : 0}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <p className="truncate text-sm font-semibold text-[#000b2f]">{label}</p>
+          {!isEditing ? (
+            <Icon name="info" className="h-4 w-4 shrink-0 text-[#7180a0]" />
+          ) : null}
+        </div>
+        <p className="shrink-0 font-mono text-base font-semibold text-[#000b2f]">
+          {total}{" "}
+          <span className="font-sans text-xs font-medium text-[#7180a0]">
+            {total === 1 ? "pessoa" : "pessoas"}
+          </span>
+        </p>
+      </div>
+
+      {isEditing ? (
+        <div className="mt-4 grid gap-3 border-t border-slate-200 pt-3">
+          {memberGroups.map((memberGroup, index) => (
+            <div
+              className="grid grid-cols-[minmax(0,1fr)_64px] items-center gap-3"
+              key={`${memberGroup.role}-${memberGroup.seniority}`}
+            >
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-[#000b2f]">{memberGroup.role}</p>
+                {memberGroup.seniority ? (
+                  <p className="mt-0.5 text-xs text-[#7180a0]">{memberGroup.seniority}</p>
+                ) : null}
+              </div>
+              <input
+                aria-label={`Quantidade de ${memberGroup.role} ${
+                  memberGroup.seniority
+                }`.trim()}
+                className="h-9 w-16 rounded-lg border border-slate-200 bg-white text-center text-sm font-semibold text-[#000b2f] outline-none focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+                min="0"
+                step="1"
+                type="number"
+                value={memberGroup.count}
+                onChange={(event) => onUpdate(index, event.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div
+          className={`pointer-events-none invisible absolute bottom-[calc(100%-4px)] z-30 w-72 max-w-[calc(100vw-4rem)] translate-y-1 rounded-lg border border-slate-200 bg-white p-3 opacity-0 shadow-xl transition group-hover/team:visible group-hover/team:translate-y-0 group-hover/team:opacity-100 group-focus/team:visible group-focus/team:translate-y-0 group-focus/team:opacity-100 ${
+            align === "left" ? "left-0" : "right-0"
+          }`}
+          role="tooltip"
+        >
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#7180a0]">
+            Time de {label}
+          </p>
+          <div className="grid gap-2">
+            {memberGroups.map((memberGroup) => (
+              <div
+                className="grid grid-cols-[28px_minmax(0,1fr)] items-start gap-2"
+                key={`${memberGroup.role}-${memberGroup.seniority}`}
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#eef0ff] font-mono text-sm font-semibold text-[#5548e8]">
+                  {memberGroup.count}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium leading-5 text-[#000b2f]">
+                    {memberGroup.role}
+                  </p>
+                  {memberGroup.seniority ? (
+                    <p className="text-xs leading-5 text-[#7180a0]">
+                      {memberGroup.seniority}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
