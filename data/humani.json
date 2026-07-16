@@ -30,6 +30,7 @@
         "url": "https://somosdigix-my.sharepoint.com/:x:/g/personal/rhyankomm_digix_com_br/IQBWtVlp8SrXRqnhhuMQNNgcAWvne5eDT4DzJvZy2lCMqlo?e=PD3vI8"
       }
     ],
+    "team": [],
     "billing": [
       {
         "label": "Faturamento Mensal",
@@ -54,45 +55,45 @@
       { "label": "Bug", "value": 2 },
       { "label": "Demanda Tech", "value": 2 }
     ],
-    "design": [{ "label": "US", "value": 2 }],
-    "team": {
-      "technology": [
-        {
-          "name": "FABIO FERNANDES BARBOSA",
-          "role": "Desenvolvedor Full Stack Sênior"
-        },
-        {
-          "name": "RICARDO GALEANO DE FARIAS",
-          "role": "Desenvolvedor Full Stack Sênior"
-        },
-        {
-          "name": "VITOR DE ARAUJO ROMÃO GUILHERMO",
-          "role": "Desenvolvedor Full Stack Pleno"
-        },
-        {
-          "name": "JEFFERSON FERNANDO DA SILVA SOUSA",
-          "role": "Analista de Cuidado ao Cliente Pleno"
-        },
-        {
-          "name": "JOAO VITOR SOUZA CARDOSO",
-          "role": "Analista de Cuidado ao Cliente Júnior"
-        }
-      ],
-      "product": [
-        {
-          "name": "RHYAN SANTIAGO KOMM",
-          "role": "Auxiliar de Produto"
-        },
-        {
-          "name": "LAYDE MARA FERNANDES",
-          "role": "Analista de Negócios Pleno"
-        },
-        {
-          "name": "FERNANDO ALVES DE ARAUJO",
-          "role": "Coordenador de Design de Produto"
-        }
-      ]
-    }
+    "design": [{ "label": "US", "value": 2 }]
+  },
+  "team": {
+    "technology": [
+      {
+        "name": "FABIO FERNANDES BARBOSA",
+        "role": "Desenvolvedor Full Stack Sênior"
+      },
+      {
+        "name": "RICARDO GALEANO DE FARIAS",
+        "role": "Desenvolvedor Full Stack Sênior"
+      },
+      {
+        "name": "VITOR DE ARAUJO ROMÃO GUILHERMO",
+        "role": "Desenvolvedor Full Stack Pleno"
+      },
+      {
+        "name": "JEFFERSON FERNANDO DA SILVA SOUSA",
+        "role": "Analista de Cuidado ao Cliente Pleno"
+      },
+      {
+        "name": "JOAO VITOR SOUZA CARDOSO",
+        "role": "Analista de Cuidado ao Cliente Júnior"
+      }
+    ],
+    "product": [
+      {
+        "name": "RHYAN SANTIAGO KOMM",
+        "role": "Auxiliar de Produto"
+      },
+      {
+        "name": "LAYDE MARA FERNANDES",
+        "role": "Analista de Negócios Pleno"
+      },
+      {
+        "name": "FERNANDO ALVES DE ARAUJO",
+        "role": "Coordenador de Design de Produto"
+      }
+    ]
   },
   "billing": {
     "monthlyTarget": 1638,

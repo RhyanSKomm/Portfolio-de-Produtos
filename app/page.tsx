@@ -28,7 +28,6 @@ type TeamData = {
 type DeliveryData = {
   development: DeliveryMetric[];
   design: DeliveryMetric[];
-  team: TeamData;
 };
 
 type BillingData = {
@@ -60,11 +59,13 @@ type ProductWorkspace = {
     backlog: SourceLinks;
     delivery: SourceLinks;
     billing: SourceLinks;
+    team: SourceLinks;
   };
   product: ProductData;
   backlogProjects: string[];
   delivery: DeliveryData;
   billing: BillingData;
+  team: TeamData;
 };
 
 const emptySource: SourceLink = {
@@ -178,6 +179,8 @@ export default function Home() {
     selectedProduct.delivery,
   );
   const [isDeliveryEditing, setIsDeliveryEditing] = useState(false);
+  const [teamDraft, setTeamDraft] = useState<TeamData>(selectedProduct.team);
+  const [isTeamEditing, setIsTeamEditing] = useState(false);
   const [billingDraft, setBillingDraft] = useState<BillingData>(selectedProduct.billing);
   const [isBillingEditing, setIsBillingEditing] = useState(false);
 
@@ -199,9 +202,11 @@ export default function Home() {
     setSelectedProductId(productId);
     setProductDraft(nextProduct.product);
     setDeliveryDraft(nextProduct.delivery);
+    setTeamDraft(nextProduct.team);
     setBillingDraft(nextProduct.billing);
     setIsProductEditing(false);
     setIsDeliveryEditing(false);
+    setIsTeamEditing(false);
     setIsBillingEditing(false);
   }
 
@@ -219,6 +224,27 @@ export default function Home() {
   function saveDelivery() {
     updateSelectedProduct((product) => ({ ...product, delivery: deliveryDraft }));
     setIsDeliveryEditing(false);
+  }
+
+  function saveTeam() {
+    const nextTeam = {
+      technology: teamDraft.technology
+        .map((member) => ({
+          name: member.name.trim(),
+          role: member.role.trim(),
+        }))
+        .filter((member) => member.name || member.role),
+      product: teamDraft.product
+        .map((member) => ({
+          name: member.name.trim(),
+          role: member.role.trim(),
+        }))
+        .filter((member) => member.name || member.role),
+    };
+
+    updateSelectedProduct((product) => ({ ...product, team: nextTeam }));
+    setTeamDraft(nextTeam);
+    setIsTeamEditing(false);
   }
 
   function saveBilling() {
@@ -258,6 +284,29 @@ export default function Home() {
           </header>
 
           <div className="grid w-full grid-cols-1 gap-6 p-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(420px,0.9fr)] xl:p-8 2xl:p-10">
+            <TeamCard
+              canEdit={canEdit}
+              data={selectedProduct.team}
+              draft={teamDraft}
+              isEditing={isTeamEditing}
+              source={selectedProduct.sources.team}
+              onSourceChange={(source) =>
+                updateSelectedProduct((product) => ({
+                  ...product,
+                  sources: { ...product.sources, team: source },
+                }))
+              }
+              onEdit={() => {
+                setTeamDraft(selectedProduct.team);
+                setIsTeamEditing(true);
+              }}
+              onCancel={() => {
+                setTeamDraft(selectedProduct.team);
+                setIsTeamEditing(false);
+              }}
+              onChange={setTeamDraft}
+              onSave={saveTeam}
+            />
             <ProductCard
               canEdit={canEdit}
               data={selectedProduct.product}
@@ -907,25 +956,6 @@ function DeliveryCard({
     onChange({ ...draft, [group]: nextMetrics });
   }
 
-  function updateTeamMember(
-    group: keyof TeamData,
-    index: number,
-    field: keyof TeamMember,
-    value: string,
-  ) {
-    const nextGroup = draft.team[group].map((member, currentIndex) =>
-      currentIndex === index ? { ...member, [field]: value } : member,
-    );
-
-    onChange({
-      ...draft,
-      team: {
-        ...draft.team,
-        [group]: nextGroup,
-      },
-    });
-  }
-
   return (
     <section className="min-h-[340px] rounded-[18px] border border-slate-200 bg-white px-7 py-8">
       <CardTop
@@ -956,11 +986,6 @@ function DeliveryCard({
         />
       </div>
 
-      <TeamComposition
-        data={visibleData.team}
-        isEditing={isEditing}
-        onUpdate={updateTeamMember}
-      />
     </section>
   );
 }
@@ -1264,55 +1289,104 @@ function MetricTable({
   );
 }
 
-function TeamComposition({
+function TeamCard({
+  canEdit,
   data,
+  draft,
   isEditing,
-  onUpdate,
+  source,
+  onCancel,
+  onChange,
+  onEdit,
+  onSave,
+  onSourceChange,
 }: {
+  canEdit: boolean;
   data: TeamData;
+  draft: TeamData;
   isEditing: boolean;
-  onUpdate: (
+  source: SourceLinks;
+  onCancel: () => void;
+  onChange: (value: TeamData) => void;
+  onEdit: () => void;
+  onSave: () => void;
+  onSourceChange: (source: SourceLinks) => void;
+}) {
+  const visibleData = isEditing ? draft : data;
+  const technologyTotal = visibleData.technology.length;
+  const productTotal = visibleData.product.length;
+  const total = technologyTotal + productTotal;
+
+  function updateMember(
     group: keyof TeamData,
     index: number,
     field: keyof TeamMember,
     value: string,
-  ) => void;
-}) {
-  const technologyTotal = data.technology.length;
-  const productTotal = data.product.length;
-  const total = technologyTotal + productTotal;
+  ) {
+    onChange({
+      ...draft,
+      [group]: draft[group].map((member, currentIndex) =>
+        currentIndex === index ? { ...member, [field]: value } : member,
+      ),
+    });
+  }
+
+  function addMember(group: keyof TeamData) {
+    onChange({
+      ...draft,
+      [group]: [...draft[group], { name: "", role: "" }],
+    });
+  }
+
+  function removeMember(group: keyof TeamData, indexToRemove: number) {
+    onChange({
+      ...draft,
+      [group]: draft[group].filter((_, index) => index !== indexToRemove),
+    });
+  }
 
   return (
-    <div className="mt-7 border-t border-slate-200 pt-5">
-      <div className="flex items-center justify-between gap-4">
-        <p className={sectionLabelClass}>Composição do Time</p>
-        <p className="shrink-0 text-sm font-medium text-[#7180a0]">
-          <span className="font-mono text-base font-semibold text-[#000b2f]">{total}</span>{" "}
-          {total === 1 ? "pessoa" : "pessoas"}
-        </p>
-      </div>
+    <section className="rounded-[18px] border border-slate-200 bg-white px-7 py-7 xl:col-span-2">
+      <CardTop
+        title={`Composição do Time · ${total} ${total === 1 ? "pessoa" : "pessoas"}`}
+        isEditing={isEditing}
+        source={source}
+        onCancel={onCancel}
+        onEdit={canEdit ? onEdit : undefined}
+        onSave={onSave}
+      />
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <TeamCategory
-          align="left"
+      {isEditing ? (
+        <SourceEditor source={source} onSourceChange={onSourceChange} />
+      ) : null}
+
+      <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
+        <TeamSection
+          group="technology"
           isEditing={isEditing}
           label="Tecnologia"
-          members={data.technology}
+          members={visibleData.technology}
+          onAdd={() => addMember("technology")}
+          onRemove={(index) => removeMember("technology", index)}
           onUpdate={(index, field, value) =>
-            onUpdate("technology", index, field, value)
+            updateMember("technology", index, field, value)
           }
           total={technologyTotal}
         />
-        <TeamCategory
-          align="right"
+        <TeamSection
+          group="product"
           isEditing={isEditing}
           label="Produto"
-          members={data.product}
-          onUpdate={(index, field, value) => onUpdate("product", index, field, value)}
+          members={visibleData.product}
+          onAdd={() => addMember("product")}
+          onRemove={(index) => removeMember("product", index)}
+          onUpdate={(index, field, value) =>
+            updateMember("product", index, field, value)
+          }
           total={productTotal}
         />
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -1327,38 +1401,29 @@ function getInitials(name: string) {
   return `${firstInitial}${lastInitial}`.toUpperCase();
 }
 
-function TeamCategory({
-  align,
+function TeamSection({
+  group,
   isEditing,
   label,
   members,
+  onAdd,
+  onRemove,
   onUpdate,
   total,
 }: {
-  align: "left" | "right";
+  group: keyof TeamData;
   isEditing: boolean;
   label: string;
   members: TeamMember[];
+  onAdd: () => void;
+  onRemove: (index: number) => void;
   onUpdate: (index: number, field: keyof TeamMember, value: string) => void;
   total: number;
 }) {
-  const summary = members
-    .map((member) => `${member.name}, ${member.role}`)
-    .join("; ");
-
   return (
-    <div
-      aria-label={`${label}: ${summary}`}
-      className="group/team relative rounded-lg border border-slate-200 bg-[#f7f8fb] p-4 outline-none transition focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
-      tabIndex={isEditing ? undefined : 0}
-    >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <p className="truncate text-sm font-semibold text-[#000b2f]">{label}</p>
-          {!isEditing ? (
-            <Icon name="info" className="h-4 w-4 shrink-0 text-[#7180a0]" />
-          ) : null}
-        </div>
+    <div className={group === "product" ? "border-t border-slate-200 pt-5 xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0" : ""}>
+      <div className="flex min-h-8 items-center justify-between gap-4">
+        <p className={sectionLabelClass}>{label}</p>
         <p className="shrink-0 font-mono text-base font-semibold text-[#000b2f]">
           {total}{" "}
           <span className="font-sans text-xs font-medium text-[#7180a0]">
@@ -1367,58 +1432,68 @@ function TeamCategory({
         </p>
       </div>
 
-      {isEditing ? (
-        <div className="mt-4 grid gap-3 border-t border-slate-200 pt-3">
-          {members.map((member, index) => (
-            <div
-              className="grid gap-2"
-              key={`${member.name}-${member.role}-${index}`}
-            >
+      <div
+        className={`mt-3 grid gap-x-5 gap-y-1 ${
+          group === "technology"
+            ? "md:grid-cols-2 2xl:grid-cols-3"
+            : "md:grid-cols-2"
+        }`}
+      >
+        {members.map((member, index) =>
+          isEditing ? (
+            <div className="grid gap-2 border-t border-slate-200 py-3" key={`team-editor-${group}-${index}`}>
+              <div className="grid grid-cols-[minmax(0,1fr)_40px] gap-2">
+                <input
+                  aria-label={`Nome da pessoa ${index + 1} de ${label}`}
+                  className="h-9 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-[#000b2f] outline-none focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+                  placeholder="Nome completo"
+                  value={member.name}
+                  onChange={(event) => onUpdate(index, "name", event.target.value)}
+                />
+                <button
+                  aria-label={`Excluir ${member.name || `pessoa ${index + 1}`}`}
+                  className="flex h-9 w-10 items-center justify-center rounded-lg border border-slate-200 text-[#7180a0] transition hover:text-red-500"
+                  onClick={() => onRemove(index)}
+                  title="Excluir pessoa"
+                  type="button"
+                >
+                  <Icon name="trash" className="h-4 w-4" />
+                </button>
+              </div>
               <input
-                aria-label={`Nome da pessoa ${index + 1} de ${label}`}
+                aria-label={`Cargo de ${member.name || `pessoa ${index + 1}`}`}
                 className="h-9 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-[#000b2f] outline-none focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
-                value={member.name}
-                onChange={(event) => onUpdate(index, "name", event.target.value)}
-              />
-              <input
-                aria-label={`Cargo de ${member.name}`}
-                className="h-9 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-xs text-[#7180a0] outline-none focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+                placeholder="Cargo e senioridade"
                 value={member.role}
                 onChange={(event) => onUpdate(index, "role", event.target.value)}
               />
             </div>
-          ))}
-        </div>
-      ) : (
-        <div
-          className={`pointer-events-none invisible absolute bottom-[calc(100%-4px)] z-30 w-80 max-w-[calc(100vw-4rem)] translate-y-1 rounded-lg border border-slate-200 bg-white p-3 opacity-0 shadow-xl transition group-hover/team:visible group-hover/team:translate-y-0 group-hover/team:opacity-100 group-focus/team:visible group-focus/team:translate-y-0 group-focus/team:opacity-100 ${
-            align === "left" ? "left-0" : "right-0"
-          }`}
-          role="tooltip"
-        >
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#7180a0]">
-            Time de {label}
-          </p>
-          <div className="grid gap-3">
-            {members.map((member) => (
-              <div
-                className="grid grid-cols-[32px_minmax(0,1fr)] items-start gap-3"
-                key={`${member.name}-${member.role}`}
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#eef0ff] text-xs font-semibold text-[#5548e8]">
-                  {getInitials(member.name)}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold leading-5 text-[#000b2f]">
-                    {member.name}
-                  </p>
-                  <p className="text-xs leading-5 text-[#7180a0]">{member.role}</p>
-                </div>
+          ) : (
+            <div className="grid min-h-14 grid-cols-[34px_minmax(0,1fr)] items-start gap-3 border-t border-slate-200 py-3" key={`${member.name}-${member.role}`}>
+              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#eef0ff] text-xs font-semibold text-[#5548e8]">
+                {getInitials(member.name)}
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold leading-4 text-[#000b2f]">
+                  {member.name}
+                </p>
+                <p className="mt-1 text-xs leading-4 text-[#7180a0]">{member.role}</p>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
+          ),
+        )}
+      </div>
+
+      {isEditing ? (
+        <button
+          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-[#5548e8] transition hover:bg-[#eef0ff]"
+          onClick={onAdd}
+          type="button"
+        >
+          <Icon name="plus" className="h-4 w-4" />
+          Adicionar pessoa
+        </button>
+      ) : null}
     </div>
   );
 }
