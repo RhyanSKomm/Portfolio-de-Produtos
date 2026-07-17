@@ -31,10 +31,12 @@ type DeliveryData = {
 };
 
 type BillingData = {
+  totalProduced: number;
   monthlyTarget: number;
   previousReport: number;
   desktopDevProduced: number;
   bugs: number;
+  nonBillableBugs: number;
   producedWithoutTickets: number;
   tickets: number;
   currentReportBillable: number;
@@ -837,7 +839,16 @@ function BillingCard({
       ) : null}
 
       <div className="mt-8 grid gap-6">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <BillingHighlight
+            label="Total produzido"
+            note="Manutenção + evolução"
+            tone="neutral"
+            value={visibleData.totalProduced}
+            field="totalProduced"
+            isEditing={isEditing}
+            onChange={updateBillingField}
+          />
           <BillingHighlight
             label="Para faturar"
             tone="primary"
@@ -883,6 +894,15 @@ function BillingCard({
             label="Bugs"
             value={visibleData.bugs}
             field="bugs"
+            isEditing={isEditing}
+            onChange={updateBillingField}
+          />
+          <BillingRow
+            label="Bugs não faturáveis"
+            value={visibleData.nonBillableBugs}
+            field="nonBillableBugs"
+            note="Bugs que não devem ser faturados."
+            tone="danger"
             isEditing={isEditing}
             onChange={updateBillingField}
           />
@@ -1158,6 +1178,7 @@ function SourceEditor({
 
 function BillingHighlight({
   label,
+  note,
   value,
   field,
   tone,
@@ -1165,19 +1186,22 @@ function BillingHighlight({
   onChange,
 }: {
   label: string;
+  note?: string;
   value: number;
   field: keyof BillingData;
-  tone: "primary" | "success";
+  tone: "neutral" | "primary" | "success";
   isEditing: boolean;
   onChange: (field: keyof BillingData, value: string) => void;
 }) {
   const toneClass =
     tone === "primary"
       ? "bg-[#f0f1ff] text-[#1c18a5]"
-      : "bg-emerald-50 text-emerald-700";
+      : tone === "success"
+        ? "bg-emerald-50 text-emerald-700"
+        : "bg-slate-100 text-[#000b2f]";
 
   return (
-    <div className={`rounded-2xl px-5 py-4 2xl:min-h-[118px] ${toneClass}`}>
+    <div className={`min-h-[112px] rounded-2xl px-4 py-4 ${toneClass}`}>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-75">
         {label}
       </p>
@@ -1193,6 +1217,7 @@ function BillingHighlight({
       ) : (
         <p className="mt-2 text-3xl font-semibold 2xl:text-4xl">{value}</p>
       )}
+      {note ? <p className="mt-1 text-xs font-medium opacity-70">{note}</p> : null}
     </div>
   );
 }
@@ -1202,6 +1227,7 @@ function BillingRow({
   value,
   field,
   note,
+  tone = "default",
   isEditing,
   onChange,
 }: {
@@ -1209,13 +1235,19 @@ function BillingRow({
   value: number;
   field: keyof BillingData;
   note?: string;
+  tone?: "danger" | "default";
   isEditing: boolean;
   onChange: (field: keyof BillingData, value: string) => void;
 }) {
+  const toneClass =
+    tone === "danger"
+      ? "border-red-200 bg-red-50"
+      : "border-slate-200 bg-[#f7f8fb]";
+
   return (
-    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-[#f7f8fb] px-4 py-3 md:grid-cols-[minmax(0,1fr)_140px]">
+    <div className={`grid gap-3 rounded-2xl border px-4 py-3 md:grid-cols-[minmax(0,1fr)_140px] ${toneClass}`}>
       <div>
-        <p className="text-sm font-medium text-[#000b2f]">{label}</p>
+        <p className={`text-sm font-medium ${tone === "danger" ? "text-red-700" : "text-[#000b2f]"}`}>{label}</p>
         {note ? <p className="mt-1 text-xs font-medium text-[#7180a0]">{note}</p> : null}
       </div>
       {isEditing ? (
