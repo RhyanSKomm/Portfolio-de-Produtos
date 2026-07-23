@@ -311,52 +311,54 @@ export default function Home() {
               onChange={setTeamDraft}
               onSave={saveTeam}
             />
-            <ProductCard
-              canEdit={canEdit}
-              data={selectedProduct.product}
-              draft={productDraft}
-              isEditing={isProductEditing}
-              source={selectedProduct.sources.product}
-              onSourceChange={(source) =>
-                updateSelectedProduct((product) => ({
-                  ...product,
-                  sources: { ...product.sources, product: source },
-                }))
-              }
-              onEdit={() => {
-                setProductDraft(selectedProduct.product);
-                setIsProductEditing(true);
-              }}
-              onCancel={() => {
-                setProductDraft(selectedProduct.product);
-                setIsProductEditing(false);
-              }}
-              onChange={setProductDraft}
-              onSave={saveProduct}
-            />
-            <DeliveryCard
-              canEdit={canEdit}
-              data={selectedProduct.delivery}
-              draft={deliveryDraft}
-              isEditing={isDeliveryEditing}
-              source={selectedProduct.sources.delivery}
-              onSourceChange={(source) =>
-                updateSelectedProduct((product) => ({
-                  ...product,
-                  sources: { ...product.sources, delivery: source },
-                }))
-              }
-              onEdit={() => {
-                setDeliveryDraft(selectedProduct.delivery);
-                setIsDeliveryEditing(true);
-              }}
-              onCancel={() => {
-                setDeliveryDraft(selectedProduct.delivery);
-                setIsDeliveryEditing(false);
-              }}
-              onChange={setDeliveryDraft}
-              onSave={saveDelivery}
-            />
+            <div className="grid gap-6 xl:col-span-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.55fr)]">
+              <ProductCard
+                canEdit={canEdit}
+                data={selectedProduct.product}
+                draft={productDraft}
+                isEditing={isProductEditing}
+                source={selectedProduct.sources.product}
+                onSourceChange={(source) =>
+                  updateSelectedProduct((product) => ({
+                    ...product,
+                    sources: { ...product.sources, product: source },
+                  }))
+                }
+                onEdit={() => {
+                  setProductDraft(selectedProduct.product);
+                  setIsProductEditing(true);
+                }}
+                onCancel={() => {
+                  setProductDraft(selectedProduct.product);
+                  setIsProductEditing(false);
+                }}
+                onChange={setProductDraft}
+                onSave={saveProduct}
+              />
+              <DeliveryCard
+                canEdit={canEdit}
+                data={selectedProduct.delivery}
+                draft={deliveryDraft}
+                isEditing={isDeliveryEditing}
+                source={selectedProduct.sources.delivery}
+                onSourceChange={(source) =>
+                  updateSelectedProduct((product) => ({
+                    ...product,
+                    sources: { ...product.sources, delivery: source },
+                  }))
+                }
+                onEdit={() => {
+                  setDeliveryDraft(selectedProduct.delivery);
+                  setIsDeliveryEditing(true);
+                }}
+                onCancel={() => {
+                  setDeliveryDraft(selectedProduct.delivery);
+                  setIsDeliveryEditing(false);
+                }}
+                onChange={setDeliveryDraft}
+                onSave={saveDelivery}
+              />
+            </div>
             <BillingCard
               canEdit={canEdit}
               data={selectedProduct.billing}
@@ -1010,7 +1012,7 @@ function DeliveryCard({
         <SourceEditor source={source} onSourceChange={onSourceChange} />
       ) : null}
 
-      <div className="mt-8 grid gap-12 2xl:grid-cols-2">
+      <div className="mt-8 grid gap-8">
         <MetricTable
           isEditing={isEditing}
           metrics={visibleData.development}
