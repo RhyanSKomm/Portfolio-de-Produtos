@@ -45,7 +45,8 @@
     "objective": "Acompanhar o pulso do cliente SEFAZ-MS, garantindo que a sustentação do sistema atual mantenha a operação saudável e fortaleça a confiança do cliente até a transição para o novo modelo de contratação, sustentado pela reescrita do Humani.",
     "projects": ["USTs", "Reescrita do Humani"],
     "horizon": "USTs previstos para Q3; reescrita com horizonte mínimo até Q4.",
-    "contractMoment": "Contrato prorrogado após o encerramento em junho. A estratégia permanece focada na reescrita para viabilizar um novo modelo de contratação."
+    "contractMoment": "Contrato prorrogado após o encerramento em junho. A estratégia permanece focada na reescrita para viabilizar um novo modelo de contratação.",
+    "bidding": "Contrato atual estendido; nova licitação prevista para julho de 2027."
   },
   "backlogProjects": ["Reescrita - Cadastros", "USTs", "Automações Internas"],
   "delivery": {

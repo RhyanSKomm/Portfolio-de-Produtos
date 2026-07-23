@@ -8,6 +8,7 @@ type ProductData = {
   projects: string[];
   horizon: string;
   contractMoment: string;
+  bidding: string;
 };
 
 type DeliveryMetric = {
@@ -517,7 +518,7 @@ function ProductCard({
         )}
       </div>
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
+      <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <div>
           <p className="mb-2 text-sm font-medium text-[#7180a0]">
             Planejamento Horizonte
@@ -546,6 +547,23 @@ function ProductCard({
           ) : (
             <p className="text-base font-normal leading-6 text-[#000b2f]">
               {visibleData.contractMoment}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-medium text-[#7180a0]">Licitação</p>
+          {isEditing ? (
+            <textarea
+              className={`${fieldClass} min-h-20 resize-y leading-6`}
+              value={draft.bidding}
+              onChange={(event) =>
+                onChange({ ...draft, bidding: event.target.value })
+              }
+            />
+          ) : (
+            <p className="text-base font-normal leading-6 text-[#000b2f]">
+              {visibleData.bidding}
             </p>
           )}
         </div>
