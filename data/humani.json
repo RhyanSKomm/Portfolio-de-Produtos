@@ -47,7 +47,7 @@
     "horizon": "USTs previstos para Q3; reescrita com horizonte mínimo até Q4.",
     "contractMoment": "Contrato prorrogado após o encerramento em junho. A estratégia permanece focada na reescrita para viabilizar um novo modelo de contratação."
   },
-  "backlogProjects": ["Reescrita - Cadastros", "USTs"],
+  "backlogProjects": ["Reescrita - Cadastros", "USTs", "Automações Internas"],
   "delivery": {
     "development": [
       { "label": "US", "value": 16 },
