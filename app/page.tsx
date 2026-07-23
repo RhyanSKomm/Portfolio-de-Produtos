@@ -844,6 +844,19 @@ function BillingCard({
   onSave: () => void;
 }) {
   const visibleData = isEditing ? draft : data;
+  const reserveTarget = 2500;
+  const attentionThreshold = 1500;
+  const reserveGap = Math.max(0, reserveTarget - visibleData.remainingOrMissing);
+  const coverageMonths =
+    visibleData.monthlyTarget > 0
+      ? visibleData.remainingOrMissing / visibleData.monthlyTarget
+      : 0;
+  const reserveStatus =
+    visibleData.remainingOrMissing >= reserveTarget
+      ? "healthy"
+      : visibleData.remainingOrMissing >= attentionThreshold
+        ? "attention"
+        : "critical";
 
   function updateBillingField(field: keyof BillingData, value: string) {
     onChange({
@@ -886,9 +899,11 @@ function BillingCard({
             isEditing={isEditing}
             onChange={updateBillingField}
           />
-          <BillingHighlight
-            label="Sobram / faltam"
-            tone="success"
+          <UstReserveHighlight
+            coverageMonths={coverageMonths}
+            gap={reserveGap}
+            reserveTarget={reserveTarget}
+            status={reserveStatus}
             value={visibleData.remainingOrMissing}
             field="remainingOrMissing"
             isEditing={isEditing}
@@ -896,7 +911,15 @@ function BillingCard({
           />
         </div>
 
-        <div className="grid gap-3">
+        <UstReserveBar
+          attentionThreshold={attentionThreshold}
+          reserveTarget={reserveTarget}
+          status={reserveStatus}
+          value={visibleData.remainingOrMissing}
+        />
+
+        <div className="grid gap-3 2xl:grid-cols-2 2xl:items-start">
+          <div className="grid gap-3">
           <BillingRow
             label="Meta mensal para faturar"
             value={visibleData.monthlyTarget}
@@ -935,6 +958,8 @@ function BillingCard({
             isEditing={isEditing}
             onChange={updateBillingField}
           />
+          </div>
+          <div className="grid gap-3">
           <BillingRow
             label="Produzido no mês sem chamados + meses anteriores"
             value={visibleData.producedWithoutTickets}
@@ -957,6 +982,7 @@ function BillingCard({
             isEditing={isEditing}
             onChange={updateBillingField}
           />
+          </div>
         </div>
       </div>
     </section>
@@ -1205,6 +1231,243 @@ function SourceEditor({
   );
 }
 
+type UstReserveStatus = "critical" | "attention" | "healthy";
+
+const ustReserveStatusConfig: Record<
+  UstReserveStatus,
+  {
+    cardClass: string;
+    dotClass: string;
+    label: string;
+    markerClass: string;
+  }
+> = {
+  critical: {
+    cardClass: "border-red-200 bg-red-50/70 text-red-700",
+    dotClass: "bg-red-500",
+    label: "Crítico",
+    markerClass: "bg-red-600",
+  },
+  attention: {
+    cardClass: "border-amber-200 bg-amber-50/70 text-amber-800",
+    dotClass: "bg-amber-500",
+    label: "Atenção",
+    markerClass: "bg-amber-600",
+  },
+  healthy: {
+    cardClass: "border-emerald-200 bg-emerald-50/70 text-emerald-700",
+    dotClass: "bg-emerald-500",
+    label: "Saudável",
+    markerClass: "bg-emerald-600",
+  },
+};
+
+function formatUsts(value: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatCoverage(value: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 1,
+  }).format(value);
+}
+
+function UstReserveTooltip() {
+  return (
+    <div className="group/reserve-info relative">
+      <button
+        aria-describedby="ust-reserve-tooltip"
+        aria-label="Como funciona a reserva de USTs"
+        className="flex h-6 w-6 items-center justify-center rounded-full text-[#7180a0] transition hover:bg-white/70 hover:text-[#000b2f] focus:bg-white/70 focus:text-[#000b2f] focus:outline-none"
+        type="button"
+      >
+        <Icon name="info" className="h-3.5 w-3.5" />
+      </button>
+      <div
+        className="invisible absolute right-0 top-7 z-40 w-72 translate-y-1 rounded-lg border border-slate-200 bg-white p-3 text-left text-xs font-medium leading-5 text-[#000b2f] opacity-0 shadow-xl transition group-hover/reserve-info:visible group-hover/reserve-info:translate-y-0 group-hover/reserve-info:opacity-100 group-focus-within/reserve-info:visible group-focus-within/reserve-info:translate-y-0 group-focus-within/reserve-info:opacity-100"
+        id="ust-reserve-tooltip"
+        role="tooltip"
+      >
+        O saldo de USTs representa o volume produzido que permanece disponível
+        após o faturamento do período. A reserva recomendada reduz o risco de não
+        atingir a meta mensal caso ocorra uma queda de produtividade.
+      </div>
+    </div>
+  );
+}
+
+function UstReserveHighlight({
+  coverageMonths,
+  field,
+  gap,
+  isEditing,
+  onChange,
+  reserveTarget,
+  status,
+  value,
+}: {
+  coverageMonths: number;
+  field: keyof BillingData;
+  gap: number;
+  isEditing: boolean;
+  onChange: (field: keyof BillingData, value: string) => void;
+  reserveTarget: number;
+  status: UstReserveStatus;
+  value: number;
+}) {
+  const statusConfig = ustReserveStatusConfig[status];
+
+  return (
+    <div
+      className={`min-h-[152px] rounded-2xl border px-4 py-3.5 ${statusConfig.cardClass}`}
+    >
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-80">
+        Saldo de USTs
+      </p>
+      {isEditing ? (
+        <input
+          className="mt-2 h-10 w-full rounded-xl border border-white/80 bg-white px-3 text-2xl font-semibold text-[#000b2f] outline-none focus:ring-4 focus:ring-white/70"
+          min="0"
+          step="1"
+          type="number"
+          value={value}
+          onChange={(event) => onChange(field, event.target.value)}
+        />
+      ) : (
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <p className="text-3xl font-semibold">{value}</p>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/75 px-2 py-1 text-[10px] font-semibold ring-1 ring-current/10">
+            <span className={`h-1.5 w-1.5 rounded-full ${statusConfig.dotClass}`} />
+            {statusConfig.label}
+          </span>
+        </div>
+      )}
+      <div className="mt-1.5 grid gap-0.5 text-[11px] font-medium leading-4">
+        <p>
+          Reserva recomendada:{" "}
+          <span className="font-semibold">{formatUsts(reserveTarget)} USTs</span>
+        </p>
+        <p>
+          Cobertura estimada:{" "}
+          <span className="font-semibold">
+            {formatCoverage(coverageMonths)}{" "}
+            {coverageMonths <= 1 ? "mês" : "meses"}
+          </span>
+        </p>
+        <p>
+          {gap > 0 ? (
+            <>
+              Faltam: <span className="font-semibold">{formatUsts(gap)} USTs</span>{" "}
+              para atingir a reserva recomendada.
+            </>
+          ) : (
+            <span className="font-semibold">Reserva recomendada atingida.</span>
+          )}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function UstReserveBar({
+  attentionThreshold,
+  reserveTarget,
+  status,
+  value,
+}: {
+  attentionThreshold: number;
+  reserveTarget: number;
+  status: UstReserveStatus;
+  value: number;
+}) {
+  const scaleMaximum = reserveTarget + 500;
+  const markerPosition = Math.min(
+    98,
+    Math.max(2, (value / scaleMaximum) * 100),
+  );
+  const attentionPosition = (attentionThreshold / scaleMaximum) * 100;
+  const targetPosition = (reserveTarget / scaleMaximum) * 100;
+  const statusConfig = ustReserveStatusConfig[status];
+
+  return (
+    <div className="border-y border-slate-200 py-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-semibold text-[#000b2f]">
+              Reserva de USTs
+            </p>
+            <UstReserveTooltip />
+          </div>
+          <p className="mt-0.5 text-xs font-medium text-[#7180a0]">
+            {formatUsts(value)} de {formatUsts(reserveTarget)} USTs
+          </p>
+        </div>
+      </div>
+
+      <div className="relative mt-7">
+        <div
+          aria-label={`Reserva atual: ${formatUsts(value)} USTs. Status ${statusConfig.label}.`}
+          className="flex h-2 overflow-hidden rounded-full bg-slate-100"
+          role="img"
+        >
+          <span
+            className="bg-red-400/85"
+            style={{ width: `${attentionPosition}%` }}
+          />
+          <span
+            className="bg-amber-400/85"
+            style={{ width: `${targetPosition - attentionPosition}%` }}
+          />
+          <span className="flex-1 bg-emerald-500/80" />
+        </div>
+
+        <div
+          className="absolute top-[-6px] -translate-x-1/2"
+          style={{ left: `${markerPosition}%` }}
+        >
+          <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-md bg-[#f0f2f6] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[#000b2f]">
+            {formatUsts(value)}
+          </span>
+          <span
+            className={`block h-5 w-0.5 rounded-full ${statusConfig.markerClass}`}
+          />
+        </div>
+      </div>
+
+      <div className="relative mt-2 h-4 font-mono text-[10px] font-medium text-[#7180a0]">
+        <span className="absolute left-0">0</span>
+        <span
+          className="absolute -translate-x-1/2"
+          style={{ left: `${attentionPosition}%` }}
+        >
+          {formatUsts(attentionThreshold)}
+        </span>
+        <span
+          className="absolute -translate-x-1/2"
+          style={{ left: `${targetPosition}%` }}
+        >
+          {formatUsts(reserveTarget)}
+        </span>
+      </div>
+
+      <div
+        className="grid text-[10px] font-semibold"
+        style={{
+          gridTemplateColumns: `${attentionPosition}% ${targetPosition - attentionPosition}% ${100 - targetPosition}%`,
+        }}
+      >
+        <span className="text-center text-red-600">Crítico</span>
+        <span className="text-center text-amber-600">Atenção</span>
+        <span className="text-center text-emerald-600">Saudável</span>
+      </div>
+    </div>
+  );
+}
+
 function BillingHighlight({
   label,
   note,
@@ -1230,7 +1493,7 @@ function BillingHighlight({
         : "bg-slate-100 text-[#000b2f]";
 
   return (
-    <div className={`min-h-[112px] rounded-2xl px-4 py-4 ${toneClass}`}>
+    <div className={`min-h-[152px] rounded-2xl px-4 py-4 ${toneClass}`}>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-75">
         {label}
       </p>
