@@ -64,15 +64,18 @@
       },
       {
         "name": "FABIO FERNANDES BARBOSA",
-        "role": "Desenvolvedor Full Stack Sênior"
+        "role": "Desenvolvedor Full Stack Sênior",
+        "deliveryAverage": 5
       },
       {
         "name": "RICARDO GALEANO DE FARIAS",
-        "role": "Desenvolvedor Full Stack Sênior"
+        "role": "Desenvolvedor Full Stack Sênior",
+        "deliveryAverage": 8
       },
       {
         "name": "VITOR DE ARAUJO ROMÃO GUILHERMO",
-        "role": "Desenvolvedor Full Stack Pleno"
+        "role": "Desenvolvedor Full Stack Pleno",
+        "deliveryAverage": 4
       },
       {
         "name": "JEFFERSON FERNANDO DA SILVA SOUSA",

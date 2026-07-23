@@ -18,6 +18,7 @@ type DeliveryMetric = {
 type TeamMember = {
   name: string;
   role: string;
+  deliveryAverage?: number;
 };
 
 type TeamData = {
@@ -233,12 +234,20 @@ export default function Home() {
         .map((member) => ({
           name: member.name.trim(),
           role: member.role.trim(),
+          deliveryAverage:
+            typeof member.deliveryAverage === "number"
+              ? Math.max(0, Math.round(member.deliveryAverage))
+              : undefined,
         }))
         .filter((member) => member.name || member.role),
       product: teamDraft.product
         .map((member) => ({
           name: member.name.trim(),
           role: member.role.trim(),
+          deliveryAverage:
+            typeof member.deliveryAverage === "number"
+              ? Math.max(0, Math.round(member.deliveryAverage))
+              : undefined,
         }))
         .filter((member) => member.name || member.role),
     };
@@ -1342,10 +1351,15 @@ function TeamCard({
     field: keyof TeamMember,
     value: string,
   ) {
+    const nextValue =
+      field === "deliveryAverage"
+        ? Math.max(0, Math.round(Number(value) || 0))
+        : value;
+
     onChange({
       ...draft,
       [group]: draft[group].map((member, currentIndex) =>
-        currentIndex === index ? { ...member, [field]: value } : member,
+        currentIndex === index ? { ...member, [field]: nextValue } : member,
       ),
     });
   }
@@ -1445,6 +1459,63 @@ function getInitials(name: string) {
   return `${firstInitial}${lastInitial}`.toUpperCase();
 }
 
+function TeamMemberSummary({ member }: { member: TeamMember }) {
+  return (
+    <div className="grid min-h-12 grid-cols-[32px_minmax(0,1fr)] items-start gap-2 border-t border-slate-200 py-2">
+      <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#eef0ff] text-xs font-semibold text-[#5548e8]">
+        {getInitials(member.name)}
+      </span>
+      <div className="min-w-0">
+        <p className="text-xs font-semibold leading-4 text-[#000b2f]">
+          {member.name}
+        </p>
+        <p className="mt-1 text-xs leading-4 text-[#7180a0]">{member.role}</p>
+        {typeof member.deliveryAverage === "number" &&
+        member.role.toLowerCase().includes("desenvolvedor") ? (
+          <p className="mt-1 inline-flex items-baseline gap-1 rounded-md bg-[#f0f2f6] px-2 py-1 font-mono text-xs font-semibold text-[#000b2f]">
+            {member.deliveryAverage}
+            <span className="font-sans text-[10px] font-medium text-[#7180a0]">
+              itens/mês
+            </span>
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function TeamMemberGroup({
+  members,
+  title,
+}: {
+  members: { index: number; member: TeamMember }[];
+  title: string;
+}) {
+  return (
+    <div>
+      <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#7180a0]">
+        {title}
+      </p>
+      <div
+        className={`grid gap-x-4 ${
+          members.length === 3
+            ? "md:grid-cols-3"
+            : members.length === 2
+              ? "md:grid-cols-2"
+              : ""
+        }`}
+      >
+        {members.map(({ index, member }) => (
+          <TeamMemberSummary
+            key={`${index}-${member.name}-${member.role}`}
+            member={member}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TeamSection({
   group,
   isEditing,
@@ -1477,6 +1548,12 @@ function TeamSection({
   const displayedMembers = members
     .map((member, index) => ({ index, member }))
     .filter(({ index }) => isEditing || index !== coordinatorIndex);
+  const developers = displayedMembers.filter(({ member }) =>
+    member.role.toLowerCase().includes("desenvolvedor"),
+  );
+  const customerCare = displayedMembers.filter(
+    ({ member }) => !member.role.toLowerCase().includes("desenvolvedor"),
+  );
 
   return (
     <div className={group === "product" ? "border-t border-slate-200 pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0" : ""}>
@@ -1506,15 +1583,15 @@ function TeamSection({
         </p>
       </div>
 
-      <div
-        className={`mt-2 grid gap-x-4 gap-y-0 ${
-          group === "technology"
-            ? "md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5"
-            : "md:grid-cols-2 2xl:grid-cols-3"
-        }`}
-      >
-        {displayedMembers.map(({ index, member }) =>
-          isEditing ? (
+      {isEditing ? (
+        <div
+          className={`mt-2 grid gap-x-4 gap-y-0 ${
+            group === "technology"
+              ? "md:grid-cols-2 xl:grid-cols-3"
+              : "md:grid-cols-2 2xl:grid-cols-3"
+          }`}
+        >
+          {displayedMembers.map(({ index, member }) => (
             <div className="grid gap-2 border-t border-slate-200 py-3" key={`team-editor-${group}-${index}`}>
               <div className="grid grid-cols-[minmax(0,1fr)_40px] gap-2">
                 <input
@@ -1541,22 +1618,44 @@ function TeamSection({
                 value={member.role}
                 onChange={(event) => onUpdate(index, "role", event.target.value)}
               />
+              {group === "technology" &&
+              member.role.toLowerCase().includes("desenvolvedor") ? (
+                <label className="flex items-center gap-2 text-xs font-medium text-[#7180a0]">
+                  Média mensal
+                  <input
+                    aria-label={`Média mensal de entregas de ${member.name || `pessoa ${index + 1}`}`}
+                    className="h-9 w-20 rounded-lg border border-slate-200 bg-white px-3 text-center font-mono text-xs font-semibold text-[#000b2f] outline-none focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+                    min="0"
+                    step="1"
+                    type="number"
+                    value={member.deliveryAverage ?? 0}
+                    onChange={(event) =>
+                      onUpdate(index, "deliveryAverage", event.target.value)
+                    }
+                  />
+                  itens/mês
+                </label>
+              ) : null}
             </div>
-          ) : (
-            <div className="grid min-h-12 grid-cols-[32px_minmax(0,1fr)] items-start gap-2 border-t border-slate-200 py-2" key={`${member.name}-${member.role}`}>
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#eef0ff] text-xs font-semibold text-[#5548e8]">
-                {getInitials(member.name)}
-              </span>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold leading-4 text-[#000b2f]">
-                  {member.name}
-                </p>
-                <p className="mt-1 text-xs leading-4 text-[#7180a0]">{member.role}</p>
-              </div>
-            </div>
-          ),
-        )}
-      </div>
+          ))}
+        </div>
+      ) : group === "technology" ? (
+        <div className="mt-2 grid gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <TeamMemberGroup members={developers} title="Desenvolvimento" />
+          <div className="xl:border-l xl:border-slate-200 xl:pl-4">
+            <TeamMemberGroup members={customerCare} title="Cuidado ao Cliente" />
+          </div>
+        </div>
+      ) : (
+        <div className="mt-2 grid gap-x-4 md:grid-cols-2 2xl:grid-cols-3">
+          {displayedMembers.map(({ index, member }) => (
+            <TeamMemberSummary
+              key={`${index}-${member.name}-${member.role}`}
+              member={member}
+            />
+          ))}
+        </div>
+      )}
 
       {isEditing ? (
         <button
