@@ -1464,10 +1464,40 @@ function TeamSection({
   onUpdate: (index: number, field: keyof TeamMember, value: string) => void;
   total: number;
 }) {
+  const coordinatorIndex =
+    group === "technology"
+      ? members.findIndex((member) =>
+          member.role.toLowerCase().includes("coordenador de desenvolvimento"),
+        )
+      : -1;
+  const coordinator =
+    !isEditing && coordinatorIndex >= 0
+      ? members[coordinatorIndex]
+      : undefined;
+  const displayedMembers = members
+    .map((member, index) => ({ index, member }))
+    .filter(({ index }) => isEditing || index !== coordinatorIndex);
+
   return (
     <div className={group === "product" ? "border-t border-slate-200 pt-4 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0" : ""}>
-      <div className="flex min-h-6 items-center justify-between gap-4">
-        <p className={sectionLabelClass}>{label}</p>
+      <div className="flex min-h-7 items-center justify-between gap-4">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+          <p className={sectionLabelClass}>{label}</p>
+          {coordinator ? (
+            <div className="flex min-w-0 items-center gap-2 border-l border-slate-200 pl-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#eef0ff] text-[11px] font-semibold text-[#5548e8]">
+                {getInitials(coordinator.name)}
+              </span>
+              <p className="min-w-0 text-xs leading-4 text-[#7180a0]">
+                <span className="font-semibold text-[#000b2f]">
+                  {coordinator.name}
+                </span>
+                <span className="mx-1.5">·</span>
+                {coordinator.role}
+              </p>
+            </div>
+          ) : null}
+        </div>
         <p className="shrink-0 font-mono text-base font-semibold text-[#000b2f]">
           {total}{" "}
           <span className="font-sans text-xs font-medium text-[#7180a0]">
@@ -1483,7 +1513,7 @@ function TeamSection({
             : "md:grid-cols-2 2xl:grid-cols-3"
         }`}
       >
-        {members.map((member, index) =>
+        {displayedMembers.map(({ index, member }) =>
           isEditing ? (
             <div className="grid gap-2 border-t border-slate-200 py-3" key={`team-editor-${group}-${index}`}>
               <div className="grid grid-cols-[minmax(0,1fr)_40px] gap-2">
