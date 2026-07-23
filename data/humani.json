@@ -59,6 +59,10 @@
   "team": {
     "technology": [
       {
+        "name": "DENIS SALAZAR",
+        "role": "Coordenador de Desenvolvimento"
+      },
+      {
         "name": "FABIO FERNANDES BARBOSA",
         "role": "Desenvolvedor Full Stack Sênior"
       },
