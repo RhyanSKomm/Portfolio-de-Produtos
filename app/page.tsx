@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import humani from "@/data/humani.json";
+import teamChecklist from "@/data/team-checklist.json";
 
 type ProductData = {
   objective: string;
@@ -44,6 +45,19 @@ type BillingData = {
   currentReportBillable: number;
   remainingOrMissing: number;
   totalToBill: number;
+};
+
+type ChecklistStatus = "done" | "in_progress" | "pending";
+
+type ChecklistItem = {
+  label: string;
+  note?: string;
+  status: ChecklistStatus;
+};
+
+type ChecklistGroup = {
+  title: string;
+  items: ChecklistItem[];
 };
 
 type SourceLink = {
@@ -99,6 +113,12 @@ function normalizeSources(
 }
 
 const initialProducts: ProductWorkspace[] = [humani];
+const checklistGroups = teamChecklist as ChecklistGroup[];
+const checklistOpenCount = checklistGroups.reduce(
+  (total, group) =>
+    total + group.items.filter((item) => item.status !== "done").length,
+  0,
+);
 
 const fieldClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-[#000b2f] outline-none transition focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10";
@@ -163,6 +183,17 @@ function Icon({ name, className = "" }: { name: string; className?: string }) {
           <path d="M12 8h.01" />
         </svg>
       );
+    case "list-checks":
+      return (
+        <svg {...common} aria-hidden="true">
+          <path d="m3 6 2 2 4-4" />
+          <path d="M11 6h10" />
+          <path d="m3 12 2 2 4-4" />
+          <path d="M11 12h10" />
+          <path d="m3 18 2 2 4-4" />
+          <path d="M11 18h10" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -186,6 +217,7 @@ export default function Home() {
   const [isTeamEditing, setIsTeamEditing] = useState(false);
   const [billingDraft, setBillingDraft] = useState<BillingData>(selectedProduct.billing);
   const [isBillingEditing, setIsBillingEditing] = useState(false);
+  const [isChecklistOpen, setIsChecklistOpen] = useState(false);
 
   function updateSelectedProduct(updater: (product: ProductWorkspace) => ProductWorkspace) {
     setProducts((currentProducts) =>
@@ -283,13 +315,29 @@ export default function Home() {
                   {selectedProduct.name}
                 </h1>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-medium uppercase tracking-[0.12em] text-[#7180a0]">
-                  {selectedProduct.client}
-                </p>
-                <p className="mt-2 text-sm font-medium text-[#7180a0]">
-                  {selectedProduct.stage}
-                </p>
+              <div className="flex items-center gap-5">
+                <button
+                  aria-controls="team-checklist-drawer"
+                  aria-expanded={isChecklistOpen}
+                  aria-label={`Abrir checklist do time. ${checklistOpenCount} itens em aberto.`}
+                  className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-[#7180a0] transition hover:border-[#cfd5e2] hover:bg-[#f0f2f6] hover:text-[#5548e8] focus:outline-none focus:ring-4 focus:ring-[#5548e8]/10"
+                  onClick={() => setIsChecklistOpen(true)}
+                  title="Checklist do time"
+                  type="button"
+                >
+                  <Icon name="list-checks" className="h-5 w-5" />
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#5548e8] px-1 font-mono text-[10px] font-semibold text-white ring-2 ring-white">
+                    {checklistOpenCount}
+                  </span>
+                </button>
+                <div className="text-right">
+                  <p className="text-sm font-medium uppercase tracking-[0.12em] text-[#7180a0]">
+                    {selectedProduct.client}
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-[#7180a0]">
+                    {selectedProduct.stage}
+                  </p>
+                </div>
               </div>
             </div>
           </header>
@@ -402,7 +450,250 @@ export default function Home() {
           </div>
         </section>
       </div>
+      <TeamChecklistDrawer
+        groups={checklistGroups}
+        isOpen={isChecklistOpen}
+        onClose={() => setIsChecklistOpen(false)}
+      />
     </main>
+  );
+}
+
+function TeamChecklistDrawer({
+  groups,
+  isOpen,
+  onClose,
+}: {
+  groups: ChecklistGroup[];
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const drawerRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const items = groups.flatMap((group) => group.items);
+  const completedCount = items.filter((item) => item.status === "done").length;
+  const inProgressCount = items.filter(
+    (item) => item.status === "in_progress",
+  ).length;
+  const pendingCount = items.filter((item) => item.status === "pending").length;
+  const completionPercentage = Math.round(
+    (completedCount / Math.max(items.length, 1)) * 100,
+  );
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const originalOverflow = document.body.style.overflow;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const focusableElements = drawerRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+
+      if (!focusableElements?.length) {
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleKeyDown);
+    closeButtonRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50">
+      <button
+        aria-label="Fechar checklist do time"
+        className="absolute inset-0 cursor-default bg-[#000b2f]/20 backdrop-blur-[1px]"
+        onClick={onClose}
+        tabIndex={-1}
+        type="button"
+      />
+      <aside
+        aria-labelledby="team-checklist-title"
+        aria-modal="true"
+        className="absolute inset-y-0 right-0 flex w-full max-w-[500px] flex-col border-l border-slate-200 bg-white shadow-[-20px_0_50px_rgba(0,11,47,0.12)]"
+        id="team-checklist-drawer"
+        ref={drawerRef}
+        role="dialog"
+      >
+        <div className="border-b border-slate-200 px-5 pb-5 pt-6 sm:px-6">
+          <div className="flex items-start justify-between gap-5">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7180a0]">
+                Acompanhamento do time
+              </p>
+              <h2
+                className="mt-2 text-2xl font-semibold text-[#000b2f]"
+                id="team-checklist-title"
+              >
+                Checklist de afazeres
+              </h2>
+            </div>
+            <button
+              aria-label="Fechar checklist"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-[#7180a0] transition hover:bg-[#f0f2f6] hover:text-[#000b2f] focus:outline-none focus:ring-4 focus:ring-[#5548e8]/10"
+              onClick={onClose}
+              ref={closeButtonRef}
+              type="button"
+            >
+              <Icon name="x" className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="mt-5 flex items-end justify-between gap-4">
+            <div>
+              <p className="font-mono text-2xl font-semibold text-[#000b2f]">
+                {completedCount}/{items.length}
+              </p>
+              <p className="mt-1 text-xs font-medium text-[#7180a0]">
+                itens concluídos
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-end gap-2 text-[11px] font-semibold">
+              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-700 ring-1 ring-amber-200">
+                {inProgressCount} em andamento
+              </span>
+              <span className="rounded-full bg-[#f0f2f6] px-2.5 py-1 text-[#7180a0] ring-1 ring-slate-200">
+                {pendingCount} pendentes
+              </span>
+            </div>
+          </div>
+          <div
+            aria-label={`${completionPercentage}% da checklist concluída`}
+            className="mt-3 h-2 overflow-hidden rounded-full bg-[#e7eaf0]"
+            role="progressbar"
+            aria-valuemax={100}
+            aria-valuemin={0}
+            aria-valuenow={completionPercentage}
+          >
+            <div
+              className="h-full rounded-full bg-[#5548e8]"
+              style={{ width: `${completionPercentage}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 sm:px-6">
+          {groups.map((group) => {
+            const groupCompletedCount = group.items.filter(
+              (item) => item.status === "done",
+            ).length;
+
+            return (
+              <section
+                className="border-b border-slate-200 py-5 last:border-b-0"
+                key={group.title}
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#7180a0]">
+                    {group.title}
+                  </h3>
+                  <span className="shrink-0 font-mono text-xs font-semibold text-[#7180a0]">
+                    {groupCompletedCount}/{group.items.length}
+                  </span>
+                </div>
+                <ul className="mt-3 grid gap-1">
+                  {group.items.map((item) => (
+                    <li
+                      className="grid grid-cols-[20px_minmax(0,1fr)] items-start gap-3 py-2"
+                      key={item.label}
+                    >
+                      <ChecklistStatusMark status={item.status} />
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <p
+                            className={`text-sm font-medium leading-5 ${
+                              item.status === "done"
+                                ? "text-[#51617f]"
+                                : "text-[#000b2f]"
+                            }`}
+                          >
+                            {item.label}
+                          </p>
+                          {item.status === "in_progress" ? (
+                            <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200">
+                              Em andamento
+                            </span>
+                          ) : null}
+                        </div>
+                        {item.note ? (
+                          <p className="mt-1 text-xs font-medium leading-4 text-[#7180a0]">
+                            {item.note}
+                          </p>
+                        ) : null}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function ChecklistStatusMark({ status }: { status: ChecklistStatus }) {
+  const statusLabel =
+    status === "done"
+      ? "Concluído"
+      : status === "in_progress"
+        ? "Em andamento"
+        : "Pendente";
+
+  return (
+    <span
+      className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-md border ${
+        status === "done"
+          ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+          : status === "in_progress"
+            ? "border-amber-300 bg-amber-50 text-amber-600"
+            : "border-slate-300 bg-white text-transparent"
+      }`}
+      title={statusLabel}
+    >
+      {status === "done" ? (
+        <Icon name="check" className="h-3 w-3" />
+      ) : status === "in_progress" ? (
+        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+      ) : null}
+      <span className="sr-only">{statusLabel}</span>
+    </span>
   );
 }
 

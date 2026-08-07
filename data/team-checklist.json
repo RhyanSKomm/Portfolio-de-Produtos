@@ -1,0 +1,81 @@
+[
+  {
+    "title": "Dashboard Executiva",
+    "items": [
+      { "label": "Evoluir visão dos produtos", "status": "done" },
+      { "label": "Adicionar previsão da licitação", "status": "done" },
+      { "label": "Estruturar visão de backlog", "status": "done" },
+      { "label": "Implementar métricas de entrega", "status": "done" },
+      { "label": "Evoluir visão de faturamento (USTs)", "status": "done" }
+    ]
+  },
+  {
+    "title": "Produtividade",
+    "items": [
+      { "label": "Levantar produtividade por desenvolvedor", "status": "done" },
+      { "label": "Consolidar médias de entrega", "status": "done" },
+      { "label": "Estruturar visão executiva", "status": "done" }
+    ]
+  },
+  {
+    "title": "USTs",
+    "items": [
+      { "label": "Levantar histórico de USTs", "status": "done" },
+      { "label": "Definir reserva recomendada", "status": "done" },
+      {
+        "label": "Apresentar cenário ao Denis",
+        "note": "Comercial atualizou as planilhas; cenário em revisão.",
+        "status": "pending"
+      },
+      { "label": "Definir plano de ação para recompor a reserva", "status": "pending" },
+      { "label": "Mapear o processo de faturamento com Giu", "status": "in_progress" },
+      { "label": "Documentar o fluxo de faturamento", "status": "pending" },
+      { "label": "Internalizar a revisão do faturamento", "status": "pending" }
+    ]
+  },
+  {
+    "title": "Automações Internas",
+    "items": [
+      { "label": "Criar iniciativa no roadmap", "status": "done" },
+      { "label": "Definir backlog das automações", "status": "pending" }
+    ]
+  },
+  {
+    "title": "Reescrita Humani",
+    "items": [
+      { "label": "Atualizar o Gantt com o novo escopo do piloto", "status": "done" },
+      {
+        "label": "Repriorizar backlog (Dashboard antes de Permissionamento)",
+        "status": "done"
+      },
+      { "label": "Estruturar a Feature do Dashboard", "status": "done" },
+      { "label": "Revisar os blocos da jornada com o Fernando", "status": "pending" },
+      { "label": "Validar o primeiro fluxo completo do piloto", "status": "done" },
+      { "label": "Validar o encerramento da etapa de Lotação", "status": "done" }
+    ]
+  },
+  {
+    "title": "Documento do Piloto",
+    "items": [
+      { "label": "Estruturar documento executivo", "status": "in_progress" }
+    ]
+  },
+  {
+    "title": "Produto",
+    "items": [
+      { "label": "Alinhar padrão de backlog com Nivaldo/Lara", "status": "pending" },
+      { "label": "Melhorar a previsibilidade das USTs", "status": "pending" },
+      { "label": "Revisar a esteira de produto", "status": "pending" }
+    ]
+  },
+  {
+    "title": "Cliente",
+    "items": [
+      {
+        "label": "Agendar visita quando houver protótipo validável",
+        "note": "Agendado para segunda-feira.",
+        "status": "done"
+      }
+    ]
+  }
+]
