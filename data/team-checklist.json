@@ -58,12 +58,6 @@
     ]
   },
   {
-    "title": "Documento do Piloto",
-    "items": [
-      { "label": "Estruturar documento executivo", "status": "in_progress" }
-    ]
-  },
-  {
     "title": "Produto",
     "items": [
       { "label": "Alinhar padrão de backlog com Nivaldo/Lara", "status": "pending" },
