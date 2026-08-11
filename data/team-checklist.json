@@ -33,7 +33,7 @@
         "note": "Verificar se há alguma ação a ser tomada.",
         "status": "pending"
       },
-      { "label": "Relatório POP (faturamento)", "status": "pending" }
+      { "label": "Relatório POP (faturamento)", "status": "done" }
     ]
   },
   {
