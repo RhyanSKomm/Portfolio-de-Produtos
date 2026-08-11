@@ -23,14 +23,17 @@
       { "label": "Levantar histórico de USTs", "status": "done" },
       { "label": "Definir reserva recomendada", "status": "done" },
       {
-        "label": "Apresentar cenário ao Denis",
-        "note": "Comercial atualizou as planilhas; cenário em revisão.",
+        "label": "Entendimento das USTs com a Natália",
+        "note": "Previsto para 19/08.",
         "status": "pending"
       },
-      { "label": "Definir plano de ação para recompor a reserva", "status": "pending" },
-      { "label": "Mapear o processo de faturamento com Giu", "status": "in_progress" },
-      { "label": "Documentar o fluxo de faturamento", "status": "pending" },
-      { "label": "Internalizar a revisão do faturamento", "status": "pending" }
+      { "label": "Relatório Julho/Agosto USTs", "status": "in_progress" },
+      {
+        "label": "Analisar situações das USTs após fechar o relatório de julho/agosto",
+        "note": "Verificar se há alguma ação a ser tomada.",
+        "status": "pending"
+      },
+      { "label": "Relatório POP (faturamento)", "status": "pending" }
     ]
   },
   {
@@ -65,7 +68,8 @@
     "items": [
       { "label": "Alinhar padrão de backlog com Nivaldo/Lara", "status": "pending" },
       { "label": "Melhorar a previsibilidade das USTs", "status": "pending" },
-      { "label": "Revisar a esteira de produto", "status": "pending" }
+      { "label": "Revisar a esteira de produto", "status": "pending" },
+      { "label": "Mapeamento de personas", "status": "pending" }
     ]
   },
   {
@@ -75,7 +79,10 @@
         "label": "Agendar visita quando houver protótipo validável",
         "note": "Agendado para segunda-feira.",
         "status": "done"
-      }
+      },
+      { "label": "Plano de Visita", "status": "pending" },
+      { "label": "Registro de Visita", "status": "pending" },
+      { "label": "Acompanhamento Semanal", "status": "pending" }
     ]
   }
 ]
