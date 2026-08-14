@@ -105,14 +105,14 @@
   "billing": {
     "totalProduced": 1951,
     "monthlyTarget": 1638,
-    "previousReport": 0,
-    "desktopDevProduced": 1951,
+    "previousReport": 2212,
+    "desktopDevProduced": 260,
     "bugs": 0,
     "nonBillableBugs": 0,
-    "producedWithoutTickets": 1951,
+    "producedWithoutTickets": 2472,
     "tickets": 84,
     "currentReportBillable": 1554,
-    "remainingOrMissing": 397,
-    "totalToBill": 1951
+    "remainingOrMissing": 918,
+    "totalToBill": 2472
   }
 }
