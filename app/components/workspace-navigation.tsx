@@ -14,6 +14,10 @@ const views = [
 ];
 
 function viewHref(activeView: WorkspaceView, targetView: WorkspaceView) {
+  if (process.env.NODE_ENV === "production") {
+    return targetView === "backlog" ? "./backlog.html" : "./";
+  }
+
   if (activeView === targetView) {
     return "./";
   }
