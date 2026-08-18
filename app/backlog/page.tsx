@@ -126,22 +126,22 @@ function BacklogTable({ items }: { items: BacklogItem[] }) {
   return (
     <>
       <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[1080px] table-fixed border-collapse">
+        <table className="w-full min-w-[920px] table-fixed border-collapse">
           <thead>
             <tr className="border-y border-slate-200 bg-[#f7f8fb] text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7180a0]">
-              <th className="w-[82px] px-4 py-3">ID</th>
-              <th className="w-[138px] px-3 py-3">Tipo</th>
-              <th className="w-[150px] px-3 py-3">Produto</th>
+              <th className="w-[72px] px-3 py-3">ID</th>
+              <th className="w-[125px] px-3 py-3">Tipo</th>
+              <th className="w-[140px] px-3 py-3">Produto</th>
               <th className="px-3 py-3">Demanda</th>
-              <th className="w-[120px] px-3 py-3">Categoria</th>
-              <th className="w-[88px] px-3 py-3">Parent</th>
-              <th className="w-[190px] px-4 py-3">Prioridade ICE</th>
+              <th className="w-[105px] px-3 py-3">Categoria</th>
+              <th className="w-[76px] px-3 py-3">Parent</th>
+              <th className="w-[175px] px-3 py-3">Prioridade ICE</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {items.map((item) => (
               <tr className="align-middle transition hover:bg-[#fafbfe]" key={item.id}>
-                <td className="px-4 py-3 font-mono text-xs font-semibold text-[#7180a0]">
+                <td className="px-3 py-3 font-mono text-xs font-semibold text-[#7180a0]">
                   {item.id}
                 </td>
                 <td className="px-3 py-3">
@@ -159,7 +159,7 @@ function BacklogTable({ items }: { items: BacklogItem[] }) {
                 <td className="px-3 py-3 font-mono text-xs font-medium text-[#7180a0]">
                   {item.parent}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-3 py-3">
                   <PriorityCell item={item} />
                 </td>
               </tr>
@@ -195,41 +195,173 @@ function BacklogTable({ items }: { items: BacklogItem[] }) {
   );
 }
 
+type RefinementGroupId = "billable" | "bugs" | "rewrite" | "technical";
+
+const refinementGroups: Array<{
+  id: RefinementGroupId;
+  label: string;
+  description: string;
+  dotClass: string;
+}> = [
+  {
+    id: "billable",
+    label: "USTs faturáveis",
+    description: "Histórias que podem compor o faturamento da próxima sprint.",
+    dotClass: "bg-[#d77a52]",
+  },
+  {
+    id: "bugs",
+    label: "Bugs não faturáveis",
+    description: "Correções necessárias que não devem compor o faturamento.",
+    dotClass: "bg-red-500",
+  },
+  {
+    id: "rewrite",
+    label: "Reescrita do Humani",
+    description: "Itens vinculados à evolução da nova solução.",
+    dotClass: "bg-[#5548e8]",
+  },
+  {
+    id: "technical",
+    label: "Demandas técnicas",
+    description: "Trabalhos de sustentação, arquitetura e melhoria técnica.",
+    dotClass: "bg-emerald-500",
+  },
+];
+
+function refinementGroupFor(item: BacklogItem): RefinementGroupId {
+  if (item.product === "Reescrita do Humani") {
+    return "rewrite";
+  }
+
+  if (item.type === "Bug") {
+    return "bugs";
+  }
+
+  if (item.type === "Demanda técnica") {
+    return "technical";
+  }
+
+  return "billable";
+}
+
+function RefinementGroups({
+  items,
+  showEmptyGroups,
+}: {
+  items: BacklogItem[];
+  showEmptyGroups: boolean;
+}) {
+  return (
+    <div className="divide-y divide-slate-200">
+      {refinementGroups.map((group) => {
+        const groupItems = items.filter(
+          (item) => refinementGroupFor(item) === group.id,
+        );
+
+        if (!showEmptyGroups && groupItems.length === 0) {
+          return null;
+        }
+
+        return (
+          <section key={group.id}>
+            <div className="flex flex-col justify-between gap-2 bg-[#fafbfe] px-4 py-3 sm:flex-row sm:items-center sm:px-5">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full ${group.dotClass}`} />
+                  <h4 className="text-xs font-semibold text-[#000b2f]">
+                    {group.label}
+                  </h4>
+                  <span className="rounded-full bg-white px-2 py-0.5 font-mono text-[10px] font-semibold text-[#7180a0] ring-1 ring-slate-200">
+                    {groupItems.length}
+                  </span>
+                </div>
+                <p className="mt-1 text-[11px] font-medium text-[#7180a0] sm:ml-4">
+                  {group.description}
+                </p>
+              </div>
+            </div>
+            {groupItems.length > 0 ? (
+              <BacklogTable items={groupItems} />
+            ) : (
+              <p className="border-t border-slate-200 px-5 py-4 text-xs font-medium text-[#9aa4bb]">
+                Nenhum item deste grupo está no refinamento.
+              </p>
+            )}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
 function FlowSummary({ items }: { items: BacklogItem[] }) {
   const metrics = [
-    { label: "Itens no fluxo", value: items.length, tone: "text-[#000b2f]" },
     {
-      label: "User stories",
-      value: items.filter((item) => item.type === "User Story").length,
+      label: "Itens em execução",
+      value: items.length,
+      tone: "text-[#000b2f]",
+      layoutClass: "",
+    },
+    {
+      label: "USTs faturáveis",
+      value: items.filter(
+        (item) => item.type === "User Story" && item.product === "USTs",
+      ).length,
       tone: "text-[#a9532f]",
+      layoutClass: "border-l border-slate-200",
+    },
+    {
+      label: "Reescrita Humani",
+      value: items.filter((item) => item.product === "Reescrita do Humani").length,
+      tone: "text-[#5548e8]",
+      layoutClass: "border-t border-slate-200 xl:border-l xl:border-t-0",
     },
     {
       label: "Demandas técnicas",
       value: items.filter((item) => item.type === "Demanda técnica").length,
       tone: "text-emerald-700",
+      layoutClass: "border-l border-t border-slate-200 xl:border-t-0",
     },
     {
-      label: "Bugs",
+      label: "Bugs não faturáveis",
       value: items.filter((item) => item.type === "Bug").length,
       tone: "text-red-700",
+      layoutClass:
+        "col-span-2 border-t border-slate-200 xl:col-span-1 xl:border-l xl:border-t-0",
     },
   ];
 
   return (
-    <section className="grid grid-cols-2 overflow-hidden rounded-[18px] border border-slate-200 bg-white xl:grid-cols-4">
-      {metrics.map((metric, index) => (
-        <div
-          className={`px-4 py-4 sm:px-5 ${index % 2 === 1 ? "border-l border-slate-200" : ""} ${index >= 2 ? "border-t border-slate-200" : ""} ${index > 0 ? "xl:border-l xl:border-slate-200" : "xl:border-l-0"} xl:border-t-0`}
-          key={metric.label}
-        >
-          <p className="text-[11px] font-semibold uppercase tracking-[0.17em] text-[#7180a0]">
-            {metric.label}
+    <section aria-labelledby="current-sprint-title">
+      <div className="mb-3 flex flex-col justify-between gap-1 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7180a0]">
+            Execução atual
           </p>
-          <p className={`mt-1 font-mono text-2xl font-semibold ${metric.tone}`}>
-            {metric.value}
-          </p>
+          <h3 className="mt-1 text-lg font-semibold text-[#00144a]" id="current-sprint-title">
+            Sprint atual
+          </h3>
         </div>
-      ))}
+        <p className="text-xs font-medium text-[#7180a0]">
+          Indicadores calculados somente com os itens em desenvolvimento.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 overflow-hidden rounded-[18px] border border-slate-200 bg-white xl:grid-cols-5">
+        {metrics.map((metric) => (
+          <div
+            className={`px-4 py-4 sm:px-5 ${metric.layoutClass}`}
+            key={metric.label}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#7180a0]">
+              {metric.label}
+            </p>
+            <p className={`mt-1 font-mono text-2xl font-semibold ${metric.tone}`}>
+              {metric.value}
+            </p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -242,10 +374,25 @@ export default function BacklogPage() {
   const activeFlow =
     backlogData.flows.find((flow) => flow.id === activeFlowId) ?? backlogData.flows[0];
   const allFlowItems = activeFlow.stages.flatMap((stage) => stage.items);
+  const sprintItems =
+    backlogData.flows
+      .find((flow) => flow.id === "downstream")
+      ?.stages.find((stage) => stage.id === "development")?.items ?? [];
   const productOptions = Array.from(new Set(allFlowItems.map((item) => item.product))).sort();
   const normalizedQuery = query.trim().toLocaleLowerCase("pt-BR");
+  const hasActiveFilters = Boolean(
+    normalizedQuery || typeFilter !== "all" || productFilter !== "all",
+  );
+  const orderedStages =
+    activeFlow.id === "downstream"
+      ? [...activeFlow.stages].sort((a, b) => {
+          if (a.id === "development") return -1;
+          if (b.id === "development") return 1;
+          return 0;
+        })
+      : activeFlow.stages;
 
-  const filteredStages = activeFlow.stages.map((stage) => ({
+  const filteredStages = orderedStages.map((stage) => ({
     ...stage,
     items: stage.items.filter((item) => {
       const matchesQuery =
@@ -327,7 +474,7 @@ export default function BacklogPage() {
               </div>
             </div>
 
-            <FlowSummary items={allFlowItems} />
+            <FlowSummary items={sprintItems} />
 
             <section className="overflow-hidden rounded-[18px] border border-slate-200 bg-white">
               <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
@@ -437,7 +584,14 @@ export default function BacklogPage() {
                             </p>
                           </div>
                         </div>
-                        <BacklogTable items={stage.items} />
+                        {stage.id === "refinement" ? (
+                          <RefinementGroups
+                            items={stage.items}
+                            showEmptyGroups={!hasActiveFilters}
+                          />
+                        ) : (
+                          <BacklogTable items={stage.items} />
+                        )}
                       </section>
                     ) : null,
                   )}

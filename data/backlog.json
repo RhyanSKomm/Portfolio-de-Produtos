@@ -93,8 +93,8 @@
       "stages": [
         {
           "id": "refinement",
-          "label": "Refinamento",
-          "description": "Itens avaliados e ordenados para decisão de entrada no desenvolvimento.",
+          "label": "Refinamento para próxima sprint",
+          "description": "Itens candidatos à próxima sprint, separados por natureza e faturamento.",
           "items": [
             {
               "id": 158612,
