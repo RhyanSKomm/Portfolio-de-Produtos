@@ -1,0 +1,243 @@
+{
+  "updatedAt": "18/08/2026",
+  "flows": [
+    {
+      "id": "upstream",
+      "label": "Upstream",
+      "description": "Descoberta, análise do problema e design antes do compromisso de execução.",
+      "sourceLabel": "Planilha Upstream",
+      "sourceUrl": "https://somosdigix.sharepoint.com/:x:/s/EquipedeProduto/IQCVoG4ZxvNSQrF0yC58OWS0ATmwIijSMnPPKpPFUeGGneA?email=greghorymetzker%40digix.com.br&e=I54rDZ",
+      "stages": [
+        {
+          "id": "discovery",
+          "label": "Descoberta / Análise do Problema",
+          "description": "Problemas em entendimento e validação antes de seguir para solução.",
+          "items": [
+            {
+              "id": 166094,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "O ato de Exoneração de cargo efetivo não está fechando o quadro do servidor",
+              "category": "Regulatório",
+              "parent": 161080,
+              "impact": null,
+              "confidence": null,
+              "effort": null,
+              "ice": null
+            },
+            {
+              "id": 103881,
+              "type": "Demanda técnica",
+              "product": "Melhoria Técnica",
+              "title": "[Humani Web] Instrumentar com o Sentry",
+              "category": "Sustentação",
+              "parent": 161080,
+              "impact": null,
+              "confidence": null,
+              "effort": null,
+              "ice": null
+            },
+            {
+              "id": 166087,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "Ao gerar mapa de tempo de serviço está contabilizando a Vacância do servidor",
+              "category": "Regulatório",
+              "parent": 161080,
+              "impact": null,
+              "confidence": null,
+              "effort": null,
+              "ice": null
+            }
+          ]
+        },
+        {
+          "id": "design",
+          "label": "Design",
+          "description": "Soluções em detalhamento funcional e técnico.",
+          "items": [
+            {
+              "id": 164170,
+              "type": "User Story",
+              "product": "Reescrita do Humani",
+              "title": "[FrontEnd] Cadastro de Grupo de Cargo",
+              "category": "Inovação",
+              "parent": 163681,
+              "impact": null,
+              "confidence": null,
+              "effort": null,
+              "ice": null
+            },
+            {
+              "id": 164360,
+              "type": "User Story",
+              "product": "Reescrita do Humani",
+              "title": "[BackEnd] Cadastro de Grupo de Cargo",
+              "category": "Inovação",
+              "parent": 163681,
+              "impact": null,
+              "confidence": null,
+              "effort": null,
+              "ice": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "downstream",
+      "label": "Downstream",
+      "description": "Refinamento, priorização e execução dos itens comprometidos pelo time.",
+      "sourceLabel": "Planilha Downstream",
+      "sourceUrl": "https://somosdigix-my.sharepoint.com/:x:/g/personal/rhyankomm_digix_com_br/IQBWtVlp8SrXRqnhhuMQNNgcAWvne5eDT4DzJvZy2lCMqlo?e=PD3vI8",
+      "stages": [
+        {
+          "id": "refinement",
+          "label": "Refinamento",
+          "description": "Itens avaliados e ordenados para decisão de entrada no desenvolvimento.",
+          "items": [
+            {
+              "id": 158612,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "Incluir a Data da Primeira Nomeação do Quadro Funcional nos principais relatórios do Humani",
+              "category": "Regulatório",
+              "parent": 161080,
+              "impact": 6,
+              "confidence": 4,
+              "effort": 3,
+              "ice": 72
+            },
+            {
+              "id": 165012,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "Possibilitar lançar o Grau de Escolaridade com especialidade em Pós-Doutorado",
+              "category": "Regulatório",
+              "parent": 161080,
+              "impact": 2,
+              "confidence": 3,
+              "effort": 10,
+              "ice": 60
+            },
+            {
+              "id": 164501,
+              "type": "Bug",
+              "product": "USTs",
+              "title": "Inconsistência no Resumo de Ponto",
+              "category": "Sustentação",
+              "parent": 161080,
+              "impact": 3,
+              "confidence": 4,
+              "effort": 5,
+              "ice": 60
+            },
+            {
+              "id": 158589,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "Correção da nomenclatura dos campos de datas na tela de Cadastro do Servidor",
+              "category": "Regulatório",
+              "parent": 161080,
+              "impact": 2,
+              "confidence": 2,
+              "effort": 10,
+              "ice": 40
+            },
+            {
+              "id": 155957,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "Migração de Férias em aberto do servidor comissionado ao mudar de código do cargo",
+              "category": "Regulatório",
+              "parent": 161080,
+              "impact": 4,
+              "confidence": 4,
+              "effort": 2,
+              "ice": 32
+            },
+            {
+              "id": 165032,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "Possibilitar aos analistas gerar lista com servidores lotados em Campo Grande para envio de e-mail",
+              "category": "Regulatório",
+              "parent": 161080,
+              "impact": 3,
+              "confidence": 3,
+              "effort": 3,
+              "ice": 27
+            },
+            {
+              "id": 154439,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "Criação do Relatório de Folga Eleitoral com filtros por Servidor e Eleição",
+              "category": "Sustentação",
+              "parent": 161080,
+              "impact": 2,
+              "confidence": 3,
+              "effort": 3,
+              "ice": 18
+            },
+            {
+              "id": 156982,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "Ao suspender uma etapa de férias, deve destacar qual etapa foi suspensa",
+              "category": "Regulatório",
+              "parent": 161080,
+              "impact": 4,
+              "confidence": 3,
+              "effort": 1,
+              "ice": 12
+            },
+            {
+              "id": 162167,
+              "type": "Demanda técnica",
+              "product": "Melhoria Técnica",
+              "title": "Verificar índices desativados no banco de dados Humani_Sefaz",
+              "category": "Sustentação",
+              "parent": 161080,
+              "impact": 2,
+              "confidence": 3,
+              "effort": 2,
+              "ice": 12
+            },
+            {
+              "id": 155629,
+              "type": "User Story",
+              "product": "USTs",
+              "title": "[Humani desktop] Aprovar solicitação de curso/escolaridade para exibição de modalidade e escolaridade",
+              "category": "Regulatório",
+              "parent": 161080,
+              "impact": 4,
+              "confidence": 2,
+              "effort": 1,
+              "ice": 8
+            }
+          ]
+        },
+        {
+          "id": "development",
+          "label": "Desenvolvimento / Sprint",
+          "description": "Itens em execução pelo time de desenvolvimento.",
+          "items": [
+            {
+              "id": 164028,
+              "type": "Demanda técnica",
+              "product": "Reescrita do Humani",
+              "title": "Criação Keycloak Humani",
+              "category": "Inovação",
+              "parent": 136898,
+              "impact": null,
+              "confidence": null,
+              "effort": null,
+              "ice": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

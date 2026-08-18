@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  MobileViewNavigation,
+  WorkspaceSidebar,
+} from "@/app/components/workspace-navigation";
 import humani from "@/data/humani.json";
 import teamChecklist from "@/data/team-checklist.json";
 
@@ -202,7 +206,7 @@ function Icon({ name, className = "" }: { name: string; className?: string }) {
 export default function Home() {
   const canEdit = process.env.NODE_ENV !== "production";
   const [products, setProducts] = useState(initialProducts);
-  const [selectedProductId, setSelectedProductId] = useState(initialProducts[0].id);
+  const selectedProductId = initialProducts[0].id;
   const selectedProduct = useMemo(
     () => products.find((product) => product.id === selectedProductId) ?? products[0],
     [products, selectedProductId],
@@ -225,24 +229,6 @@ export default function Home() {
         product.id === selectedProductId ? updater(product) : product,
       ),
     );
-  }
-
-  function selectProduct(productId: string) {
-    const nextProduct = products.find((product) => product.id === productId);
-
-    if (!nextProduct) {
-      return;
-    }
-
-    setSelectedProductId(productId);
-    setProductDraft(nextProduct.product);
-    setDeliveryDraft(nextProduct.delivery);
-    setTeamDraft(nextProduct.team);
-    setBillingDraft(nextProduct.billing);
-    setIsProductEditing(false);
-    setIsDeliveryEditing(false);
-    setIsTeamEditing(false);
-    setIsBillingEditing(false);
   }
 
   function saveProduct() {
@@ -298,11 +284,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#f0f2f6] text-[#000b2f]">
       <div className="flex min-h-screen">
-        <Sidebar
-          products={products}
-          selectedProductId={selectedProductId}
-          onSelectProduct={selectProduct}
-        />
+        <WorkspaceSidebar activeView="overview" product={selectedProduct} />
 
         <section className="min-w-0 flex-1">
           <header className="border-b border-slate-200 bg-white">
@@ -340,6 +322,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            <MobileViewNavigation activeView="overview" />
           </header>
 
           <div className="grid w-full grid-cols-1 gap-6 p-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(420px,0.9fr)] xl:p-8 2xl:p-10">
@@ -694,65 +677,6 @@ function ChecklistStatusMark({ status }: { status: ChecklistStatus }) {
       ) : null}
       <span className="sr-only">{statusLabel}</span>
     </span>
-  );
-}
-
-function Sidebar({
-  products,
-  selectedProductId,
-  onSelectProduct,
-}: {
-  products: ProductWorkspace[];
-  selectedProductId: string;
-  onSelectProduct: (productId: string) => void;
-}) {
-  return (
-    <aside className="hidden w-60 shrink-0 border-r border-slate-200 bg-white px-3 py-5 lg:block xl:w-64">
-      <div className="mb-6 px-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#7180a0]">
-          Produtos
-        </p>
-        <h2 className="mt-2 text-xl font-semibold text-[#00144a]">Workspace</h2>
-      </div>
-
-      <div className="space-y-2">
-        {products.map((product) => {
-          const isSelected = product.id === selectedProductId;
-
-          return (
-            <button
-              className={`w-full rounded-xl border px-3 py-3 text-left transition ${
-                isSelected
-                  ? "border-[#5548e8] bg-[#f0f1ff] shadow-sm"
-                  : "border-transparent bg-white hover:border-slate-200 hover:bg-[#f7f8fb]"
-              }`}
-              key={product.id}
-              onClick={() => onSelectProduct(product.id)}
-              type="button"
-            >
-              <div className="flex items-start gap-3">
-                <span
-                  className={`mt-1 h-3 w-3 rounded-full ${
-                    isSelected ? "bg-[#5548e8]" : "bg-slate-300"
-                  }`}
-                />
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-[#000b2f]">
-                    {product.name}
-                  </span>
-                  <span className="mt-1 block text-xs font-medium text-[#7180a0]">
-                    {product.client}
-                  </span>
-                  <span className="mt-2 inline-flex rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-medium text-[#7180a0]">
-                    {product.stage}
-                  </span>
-                </span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </aside>
   );
 }
 
