@@ -366,6 +366,156 @@ function FlowSummary({ items }: { items: BacklogItem[] }) {
   );
 }
 
+function EmptyStageMessage({ children }: { children: string }) {
+  return (
+    <div className="px-5 py-10 text-center">
+      <p className="text-xs font-medium text-[#9aa4bb]">{children}</p>
+    </div>
+  );
+}
+
+function DownstreamBoard({
+  refinementStage,
+  showEmptyGroups,
+  sprintStage,
+}: {
+  refinementStage?: BacklogStage;
+  showEmptyGroups: boolean;
+  sprintStage?: BacklogStage;
+}) {
+  const sprintItems = sprintStage?.items ?? [];
+  const refinementItems = refinementStage?.items ?? [];
+
+  return (
+    <div className="grid gap-5">
+      <section
+        aria-labelledby="sprint-board-title"
+        className="overflow-hidden rounded-[18px] border border-[#d9dcff] bg-white shadow-[0_4px_16px_rgba(85,72,232,0.06)]"
+      >
+        <div className="flex flex-col justify-between gap-4 border-b border-[#d9dcff] bg-[#f5f4ff] px-5 py-5 sm:flex-row sm:items-center">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#5548e8]">
+                Agora
+              </span>
+              <span className="inline-flex min-h-6 items-center gap-1.5 rounded-full bg-[#5548e8] px-2.5 text-[10px] font-semibold text-white">
+                <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                Em execução
+              </span>
+            </div>
+            <h3 className="mt-2 text-lg font-semibold text-[#00144a]" id="sprint-board-title">
+              Sprint atual
+            </h3>
+            <p className="mt-1 text-xs font-medium text-[#7180a0]">
+              Trabalho já comprometido e em desenvolvimento pelo time.
+            </p>
+          </div>
+          <div className="sm:text-right">
+            <p className="font-mono text-2xl font-semibold text-[#5548e8]">
+              {sprintItems.length}
+            </p>
+            <p className="text-[11px] font-medium text-[#7180a0]">
+              {sprintItems.length === 1 ? "item na sprint" : "itens na sprint"}
+            </p>
+          </div>
+        </div>
+        {sprintItems.length > 0 ? (
+          <BacklogTable items={sprintItems} />
+        ) : (
+          <EmptyStageMessage>
+            Nenhum item da sprint corresponde aos filtros aplicados.
+          </EmptyStageMessage>
+        )}
+      </section>
+
+      <section
+        aria-labelledby="planning-board-title"
+        className="overflow-hidden rounded-[18px] border border-slate-200 bg-white"
+      >
+        <div className="flex flex-col justify-between gap-4 border-b border-slate-200 bg-[#f7f8fb] px-5 py-5 sm:flex-row sm:items-center">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#7180a0]">
+                Depois
+              </span>
+              <span className="inline-flex min-h-6 items-center rounded-full bg-white px-2.5 text-[10px] font-semibold text-[#7180a0] ring-1 ring-slate-200">
+                Candidatos
+              </span>
+            </div>
+            <h3 className="mt-2 text-lg font-semibold text-[#00144a]" id="planning-board-title">
+              Planejamento da próxima sprint
+            </h3>
+            <p className="mt-1 text-xs font-medium text-[#7180a0]">
+              Itens em refinamento que ainda não foram comprometidos na sprint.
+            </p>
+          </div>
+          <div className="sm:text-right">
+            <p className="font-mono text-2xl font-semibold text-[#000b2f]">
+              {refinementItems.length}
+            </p>
+            <p className="text-[11px] font-medium text-[#7180a0]">
+              {refinementItems.length === 1 ? "item candidato" : "itens candidatos"}
+            </p>
+          </div>
+        </div>
+        {refinementItems.length > 0 || showEmptyGroups ? (
+          <RefinementGroups
+            items={refinementItems}
+            showEmptyGroups={showEmptyGroups}
+          />
+        ) : (
+          <EmptyStageMessage>
+            Nenhum item em planejamento corresponde aos filtros aplicados.
+          </EmptyStageMessage>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function UpstreamBoard({ stages }: { stages: BacklogStage[] }) {
+  const visibleStages = stages.filter((stage) => stage.items.length > 0);
+
+  if (visibleStages.length === 0) {
+    return (
+      <section className="rounded-[18px] border border-slate-200 bg-white">
+        <EmptyStageMessage>
+          Nenhum item do Upstream corresponde aos filtros aplicados.
+        </EmptyStageMessage>
+      </section>
+    );
+  }
+
+  return (
+    <div className="grid gap-5">
+      {visibleStages.map((stage) => (
+        <section
+          className="overflow-hidden rounded-[18px] border border-slate-200 bg-white"
+          key={stage.id}
+        >
+          <div className="flex flex-col justify-between gap-3 border-b border-slate-200 bg-[#f7f8fb] px-5 py-4 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#7180a0]">
+                Upstream
+              </p>
+              <h3 className="mt-1 text-base font-semibold text-[#00144a]">
+                {stage.label}
+              </h3>
+              <p className="mt-1 text-xs font-medium text-[#7180a0]">
+                {stage.description}
+              </p>
+            </div>
+            <span className="inline-flex w-fit rounded-full bg-white px-2.5 py-1 font-mono text-[10px] font-semibold text-[#7180a0] ring-1 ring-slate-200">
+              {stage.items.length} {stage.items.length === 1 ? "item" : "itens"}
+            </span>
+          </div>
+          <BacklogTable items={stage.items} />
+        </section>
+      ))}
+    </div>
+  );
+}
+
 export default function BacklogPage() {
   const [activeFlowId, setActiveFlowId] = useState<BacklogFlow["id"]>("downstream");
   const [query, setQuery] = useState("");
@@ -406,9 +556,11 @@ export default function BacklogPage() {
       return matchesQuery && matchesType && matchesProduct;
     }),
   }));
-  const visibleItemCount = filteredStages.reduce(
-    (total, stage) => total + stage.items.length,
-    0,
+  const filteredSprintStage = filteredStages.find(
+    (stage) => stage.id === "development",
+  );
+  const filteredRefinementStage = filteredStages.find(
+    (stage) => stage.id === "refinement",
   );
 
   function selectFlow(flowId: BacklogFlow["id"]) {
@@ -476,128 +628,98 @@ export default function BacklogPage() {
 
             <FlowSummary items={sprintItems} />
 
-            <section className="overflow-hidden rounded-[18px] border border-slate-200 bg-white">
-              <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                  <div className="inline-flex w-fit rounded-lg bg-[#f0f2f6] p-1" role="tablist">
-                    {backlogData.flows.map((flow) => {
-                      const count = flow.stages.reduce(
-                        (total, stage) => total + stage.items.length,
-                        0,
-                      );
-                      const isActive = flow.id === activeFlow.id;
+            <section className="rounded-[18px] border border-slate-200 bg-white px-4 py-4 sm:px-5">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <div className="inline-flex w-fit rounded-lg bg-[#f0f2f6] p-1" role="tablist">
+                  {backlogData.flows.map((flow) => {
+                    const count = flow.stages.reduce(
+                      (total, stage) => total + stage.items.length,
+                      0,
+                    );
+                    const isActive = flow.id === activeFlow.id;
 
-                      return (
-                        <button
-                          aria-selected={isActive}
-                          className={`min-h-9 rounded-md px-3 text-xs font-semibold transition sm:px-4 ${
-                            isActive
-                              ? "bg-white text-[#5548e8] shadow-sm"
-                              : "text-[#7180a0] hover:text-[#000b2f]"
-                          }`}
-                          key={flow.id}
-                          onClick={() => selectFlow(flow.id)}
-                          role="tab"
-                          type="button"
-                        >
-                          {flow.label}
-                          <span className="ml-2 font-mono text-[10px] opacity-70">{count}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="grid gap-2 sm:grid-cols-[minmax(220px,1fr)_180px_180px] xl:w-auto">
-                    <label className="relative block">
-                      <span className="sr-only">Buscar no backlog</span>
-                      <BacklogIcon
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7180a0]"
-                        name="search"
-                      />
-                      <input
-                        className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs font-medium text-[#000b2f] outline-none transition placeholder:text-[#9aa4bb] focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
-                        onChange={(event) => setQuery(event.target.value)}
-                        placeholder="Buscar por ID ou demanda"
-                        type="search"
-                        value={query}
-                      />
-                    </label>
-                    <label>
-                      <span className="sr-only">Filtrar por tipo</span>
-                      <select
-                        className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-[#7180a0] outline-none transition focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
-                        onChange={(event) => setTypeFilter(event.target.value)}
-                        value={typeFilter}
+                    return (
+                      <button
+                        aria-selected={isActive}
+                        className={`min-h-9 rounded-md px-3 text-xs font-semibold transition sm:px-4 ${
+                          isActive
+                            ? "bg-white text-[#5548e8] shadow-sm"
+                            : "text-[#7180a0] hover:text-[#000b2f]"
+                        }`}
+                        key={flow.id}
+                        onClick={() => selectFlow(flow.id)}
+                        role="tab"
+                        type="button"
                       >
-                        <option value="all">Todos os tipos</option>
-                        <option value="User Story">User Story</option>
-                        <option value="Demanda técnica">Demanda técnica</option>
-                        <option value="Bug">Bug</option>
-                      </select>
-                    </label>
-                    <label>
-                      <span className="sr-only">Filtrar por produto</span>
-                      <select
-                        className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-[#7180a0] outline-none transition focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
-                        onChange={(event) => setProductFilter(event.target.value)}
-                        value={productFilter}
-                      >
-                        <option value="all">Todos os produtos</option>
-                        {productOptions.map((product) => (
-                          <option key={product} value={product}>
-                            {product}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
+                        {flow.label}
+                        <span className="ml-2 font-mono text-[10px] opacity-70">{count}</span>
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="mt-4 flex flex-col justify-between gap-1 sm:flex-row sm:items-center">
-                  <p className="text-sm font-semibold text-[#000b2f]">{activeFlow.label}</p>
-                  <p className="text-xs font-medium text-[#7180a0]">
-                    {activeFlow.description}
-                  </p>
+
+                <div className="grid gap-2 sm:grid-cols-[minmax(220px,1fr)_180px_180px] xl:w-auto">
+                  <label className="relative block">
+                    <span className="sr-only">Buscar no backlog</span>
+                    <BacklogIcon
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7180a0]"
+                      name="search"
+                    />
+                    <input
+                      className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs font-medium text-[#000b2f] outline-none transition placeholder:text-[#9aa4bb] focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+                      onChange={(event) => setQuery(event.target.value)}
+                      placeholder="Buscar por ID ou demanda"
+                      type="search"
+                      value={query}
+                    />
+                  </label>
+                  <label>
+                    <span className="sr-only">Filtrar por tipo</span>
+                    <select
+                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-[#7180a0] outline-none transition focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+                      onChange={(event) => setTypeFilter(event.target.value)}
+                      value={typeFilter}
+                    >
+                      <option value="all">Todos os tipos</option>
+                      <option value="User Story">User Story</option>
+                      <option value="Demanda técnica">Demanda técnica</option>
+                      <option value="Bug">Bug</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span className="sr-only">Filtrar por produto</span>
+                    <select
+                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-[#7180a0] outline-none transition focus:border-[#5548e8] focus:ring-4 focus:ring-[#5548e8]/10"
+                      onChange={(event) => setProductFilter(event.target.value)}
+                      value={productFilter}
+                    >
+                      <option value="all">Todos os produtos</option>
+                      {productOptions.map((product) => (
+                        <option key={product} value={product}>
+                          {product}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
               </div>
-
-              {visibleItemCount === 0 ? (
-                <div className="px-5 py-16 text-center">
-                  <p className="text-sm font-semibold text-[#000b2f]">Nenhum item encontrado</p>
-                  <p className="mt-1 text-xs text-[#7180a0]">Revise a busca ou os filtros aplicados.</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-200">
-                  {filteredStages.map((stage) =>
-                    stage.items.length > 0 ? (
-                      <section key={stage.id}>
-                        <div className="flex flex-col justify-between gap-2 border-b border-slate-200 bg-white px-4 py-4 sm:flex-row sm:items-center sm:px-5">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="h-2 w-2 rounded-full bg-[#5548e8]" />
-                              <h3 className="text-sm font-semibold text-[#000b2f]">{stage.label}</h3>
-                              <span className="rounded-full bg-[#f0f2f6] px-2 py-0.5 font-mono text-[10px] font-semibold text-[#7180a0]">
-                                {stage.items.length}
-                              </span>
-                            </div>
-                            <p className="mt-1 text-xs font-medium text-[#7180a0] sm:ml-4">
-                              {stage.description}
-                            </p>
-                          </div>
-                        </div>
-                        {stage.id === "refinement" ? (
-                          <RefinementGroups
-                            items={stage.items}
-                            showEmptyGroups={!hasActiveFilters}
-                          />
-                        ) : (
-                          <BacklogTable items={stage.items} />
-                        )}
-                      </section>
-                    ) : null,
-                  )}
-                </div>
-              )}
+              <div className="mt-4 flex flex-col justify-between gap-1 border-t border-slate-200 pt-4 sm:flex-row sm:items-center">
+                <p className="text-sm font-semibold text-[#000b2f]">{activeFlow.label}</p>
+                <p className="text-xs font-medium text-[#7180a0]">
+                  {activeFlow.description}
+                </p>
+              </div>
             </section>
+
+            {activeFlow.id === "downstream" ? (
+              <DownstreamBoard
+                refinementStage={filteredRefinementStage}
+                showEmptyGroups={!hasActiveFilters}
+                sprintStage={filteredSprintStage}
+              />
+            ) : (
+              <UpstreamBoard stages={filteredStages} />
+            )}
           </div>
         </section>
       </div>
