@@ -57,7 +57,7 @@
     "title": "Produto",
     "items": [
       { "label": "Alinhar padrão de backlog com Nivaldo/Lara", "status": "pending" },
-      { "label": "Mapeamento de personas", "status": "pending" }
+      { "label": "Mapeamento de personas", "status": "done" }
     ]
   },
   {
@@ -68,9 +68,9 @@
         "note": "Agendado para segunda-feira.",
         "status": "done"
       },
-      { "label": "Plano de Visita", "status": "pending" },
-      { "label": "Registro de Visita", "status": "pending" },
-      { "label": "Acompanhamento Semanal", "status": "pending" }
+      { "label": "Plano de Visita", "status": "done" },
+      { "label": "Registro de Visita", "status": "done" },
+      { "label": "Acompanhamento Semanal", "status": "done" }
     ]
   }
 ]
