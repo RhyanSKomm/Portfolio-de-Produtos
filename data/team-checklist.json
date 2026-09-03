@@ -22,16 +22,12 @@
     "items": [
       { "label": "Levantar histórico de USTs", "status": "done" },
       { "label": "Definir reserva recomendada", "status": "done" },
-      {
-        "label": "Entendimento das USTs com a Natália",
-        "note": "Previsto para 19/08.",
-        "status": "pending"
-      },
-      { "label": "Relatório Julho/Agosto USTs", "status": "in_progress" },
+      { "label": "Entendimento das USTs com a Natália", "status": "done" },
+      { "label": "Relatório Julho/Agosto USTs", "status": "done" },
       {
         "label": "Analisar situações das USTs após fechar o relatório de julho/agosto",
         "note": "Verificar se há alguma ação a ser tomada.",
-        "status": "pending"
+        "status": "done"
       },
       { "label": "Relatório POP (faturamento)", "status": "done" }
     ]
@@ -40,7 +36,7 @@
     "title": "Automações Internas",
     "items": [
       { "label": "Criar iniciativa no roadmap", "status": "done" },
-      { "label": "Definir backlog das automações", "status": "pending" }
+      { "label": "Definir backlog das automações", "status": "in_progress" }
     ]
   },
   {
@@ -61,8 +57,6 @@
     "title": "Produto",
     "items": [
       { "label": "Alinhar padrão de backlog com Nivaldo/Lara", "status": "pending" },
-      { "label": "Melhorar a previsibilidade das USTs", "status": "pending" },
-      { "label": "Revisar a esteira de produto", "status": "pending" },
       { "label": "Mapeamento de personas", "status": "pending" }
     ]
   },
